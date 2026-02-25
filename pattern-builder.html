@@ -1107,10 +1107,10 @@
         document.addEventListener('DOMContentLoaded', initApp);
 
         function initApp() {
-            setupTabs();
-            setupBrowseTab();
-            setupBuilderTab();
-            setupBlueprintsTab();
+            try { setupTabs(); } catch(e) { console.error('setupTabs error:', e); }
+            try { setupBrowseTab(); } catch(e) { console.error('setupBrowseTab error:', e); }
+            try { setupBuilderTab(); } catch(e) { console.error('setupBuilderTab error:', e); }
+            try { setupBlueprintsTab(); } catch(e) { console.error('setupBlueprintsTab error:', e); document.getElementById('blueprints-grid').innerHTML = '<div style="color:red;padding:2rem;">Error loading blueprints: ' + e.message + '</div>'; }
         }
 
         // TAB SWITCHING
