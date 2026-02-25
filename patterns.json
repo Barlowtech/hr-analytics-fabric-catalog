@@ -1,0 +1,2663 @@
+[
+  {
+    "id": "medallion-architecture",
+    "name": "Medallion Architecture (Bronze-Silver-Gold)",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Lakehouse Architecture",
+    "summary": "Implements a three-layer medallion architecture (Bronze, Silver, Gold) for progressive data refinement in OneLake.",
+    "description": "The medallion architecture separates raw data ingestion, cleansed data, and business-ready analytics data into distinct layers. For HR analytics, employee data moves through Bronze (raw), Silver (standardized), and Gold (business-ready) layers.",
+    "fabricComponents": [
+      "Lakehouse",
+      "OneLake",
+      "Spark Notebooks",
+      "Delta Lake"
+    ],
+    "pros": [
+      "Provides clear separation of concerns with distinct data quality boundaries.",
+      "Enables independent scaling and optimization of each layer.",
+      "Facilitates governance by creating controlled access points."
+    ],
+    "cons": [
+      "Introduces operational complexity with three layers.",
+      "Can increase storage costs if not properly optimized.",
+      "Requires upfront investment in data modeling."
+    ],
+    "usageInstructions": "1. Create three folders: Bronze, Silver, Gold. 2. Land raw data into Bronze. 3. Build transformations in Silver. 4. Create final tables in Gold. 5. Apply labels progressively. 6. Establish refresh schedules.",
+    "governanceConsiderations": "Implement RLS at Gold layer and restrict Bronze/Silver access to engineers. Apply sensitivity labels to personal data. Maintain transformation logs for audits.",
+    "peopleAnalyticsUseCases": [
+      "Employee master repository moving through all layers.",
+      "Payroll analytics data mart with restricted raw salary details.",
+      "Organizational analytics foundation with normalized hierarchies."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "delta-lake-partitioning",
+      "onelake-shortcuts",
+      "spark-notebook-etl",
+      "dataflow-gen2"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "architecture",
+      "data-organization",
+      "lakehouse"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Medallion Architecture",
+        "url": "https://docs.microsoft.com/en-us/fabric/onelake/medallion-lakehouse-architecture"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Storage scales with volume; optimize with VACUUM"
+  },
+  {
+    "id": "delta-lake-partitioning",
+    "name": "Delta Lake Partitioning Strategy",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Optimization",
+    "summary": "Partitions Delta tables by business dimensions to optimize query performance and reduce scan costs.",
+    "description": "Partitioning divides large tables into segments based on column values like date or department, enabling Spark to skip irrelevant partitions during queries.",
+    "fabricComponents": [
+      "Lakehouse",
+      "Delta Lake",
+      "Spark Notebooks"
+    ],
+    "pros": [
+      "Reduces query execution time through predicate pushdown.",
+      "Reduces compute and storage costs by avoiding full scans.",
+      "Simplifies data lifecycle management for old partitions."
+    ],
+    "cons": [
+      "Poorly chosen columns degrade performance.",
+      "Over-partitioning requires frequent compaction.",
+      "Adds complexity to pipeline logic."
+    ],
+    "usageInstructions": "1. Analyze query patterns. 2. Select 1-3 partition columns. 3. Create table with PARTITIONED BY. 4. Ingest data with partition columns. 5. Run ANALYZE TABLE COMPUTE STATISTICS. 6. Monitor and optimize quarterly.",
+    "governanceConsiderations": "Align partition columns with RLS policies. Document strategy in data catalog. Monitor partition drift. Ensure archived partitions follow retention policies.",
+    "peopleAnalyticsUseCases": [
+      "Payroll trend analysis across decade with fast access to recent periods.",
+      "Attendance pattern retrieval without scanning all records.",
+      "Time-travel org hierarchy analysis."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "lakehouse-warehouse-selection",
+      "spark-notebook-etl"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "optimization",
+      "performance",
+      "delta-lake"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Delta Lake Partitioning",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-engineering/lakehouse-shortcuts"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Reduces costs 50-80%; storage overhead minimal"
+  },
+  {
+    "id": "lakehouse-warehouse-selection",
+    "name": "Lakehouse vs Warehouse Selection",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Decision Framework",
+    "summary": "Decision framework for choosing between Lakehouse and Warehouse based on workload characteristics.",
+    "description": "Lakehouse works well for unstructured data and ML; Warehouse for structured relational analytics. Many use both in parallel.",
+    "fabricComponents": [
+      "Lakehouse",
+      "Warehouse",
+      "OneLake",
+      "Spark Notebooks"
+    ],
+    "pros": [
+      "Optimal tool selection for different workloads.",
+      "Lakehouse provides flexibility; Warehouse ensures consistency.",
+      "Supports incremental adoption and migration."
+    ],
+    "cons": [
+      "Operating both increases operational overhead.",
+      "Performance strategies differ significantly.",
+      "Teams must understand distinct capabilities."
+    ],
+    "usageInstructions": "1. Assess workload type. 2. Structured HR reporting \u2192 Warehouse. 3. Exploratory analysis \u2192 Lakehouse. 4. Semi-structured \u2192 Lakehouse. 5. If both needed: Lakehouse Bronze/Silver, Warehouse for reporting. 6. Use shortcuts.",
+    "governanceConsiderations": "Warehouse provides stricter governance through schema enforcement. Restrict Warehouse to certified analytics. Use Lakehouse for non-sensitive exploration.",
+    "peopleAnalyticsUseCases": [
+      "Operational HR dashboards in Warehouse.",
+      "Survey analysis and churn modeling in Lakehouse.",
+      "ML pipelines in Lakehouse, results in Warehouse."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "direct-lake-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "architecture",
+      "storage-selection"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Lakehouse Overview",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-engineering/lakehouse-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "1 week assessment",
+    "costImplications": "Lakehouse compute scales with transforms; Warehouse has fixed DWU pricing"
+  },
+  {
+    "id": "onelake-shortcuts",
+    "name": "OneLake Shortcuts for Data Sharing",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Data Integration",
+    "summary": "Uses OneLake shortcuts as virtual references to data elsewhere without copying.",
+    "description": "Shortcuts point to data in other Lakehouses, Warehouses, or external storage. Finance maintains employee master; HR and Recruiting create shortcuts to it.",
+    "fabricComponents": [
+      "OneLake",
+      "Lakehouse",
+      "Warehouse",
+      "Shortcuts"
+    ],
+    "pros": [
+      "Eliminates duplication and maintains single source of truth.",
+      "Zero-copy reduces costs; updates visible immediately.",
+      "Simplifies cross-team collaboration."
+    ],
+    "cons": [
+      "Cross-workspace latency can degrade performance.",
+      "Shortcuts obscure ownership and governance.",
+      "Lineage becomes harder to debug."
+    ],
+    "usageInstructions": "1. Identify source of truth tables. 2. Create Lakehouse in consumer team. 3. Right-click folder > New shortcut. 4. Select source table. 5. Query like normal tables. 6. Monitor performance.",
+    "governanceConsiderations": "Shortcuts must point to governed tables. Establish data contracts for schema stability. Document in data catalog. Apply workspace permissions. Use for read-only reference data.",
+    "peopleAnalyticsUseCases": [
+      "Finance employee master accessed via shortcuts by HR and Recruiting.",
+      "Shared org hierarchy referenced across teams.",
+      "Reducing storage by shortcutting payroll data."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "lakehouse-warehouse-selection"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "data-sharing",
+      "shortcuts",
+      "zero-copy"
+    ],
+    "referenceLinks": [
+      {
+        "label": "OneLake Shortcuts",
+        "url": "https://docs.microsoft.com/en-us/fabric/onelake/onelake-shortcuts"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 days",
+    "costImplications": "Zero-copy saves significantly vs replication"
+  },
+  {
+    "id": "direct-lake-semantic-model",
+    "name": "Direct Lake Semantic Model",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Semantic Layer Design",
+    "summary": "Creates semantic models that directly reference OneLake Delta tables in Direct Lake mode for real-time analytics.",
+    "description": "Direct Lake bypasses VertiPaq import, providing freshness of DirectQuery with import speed. Gold-layer tables feed Power BI without duplication.",
+    "fabricComponents": [
+      "Semantic Model",
+      "Power BI",
+      "OneLake",
+      "Delta Lake",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Real-time data access without import overhead.",
+      "Eliminates storage duplication.",
+      "Combines import performance with DirectQuery freshness."
+    ],
+    "cons": [
+      "Requires well-optimized Delta tables.",
+      "Not all Power BI transformations supported.",
+      "Optimization less transparent than import mode."
+    ],
+    "usageInstructions": "1. Ensure Gold tables are optimized. 2. Create semantic model. 3. Select Direct Lake mode. 4. Browse and select Gold tables. 5. Create relationships. 6. Build reports. 7. Monitor performance.",
+    "governanceConsiderations": "Direct Lake exposes lakehouse structure; govern before creating models. Control who modifies underlying tables. Apply sensitivity labels. Document contracts. Prevent accidental deletions.",
+    "peopleAnalyticsUseCases": [
+      "Real-time HR dashboards from Gold tables.",
+      "Live payroll cost dashboards.",
+      "Quick BI iteration using Direct Lake."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "lakehouse-warehouse-selection",
+      "delta-lake-partitioning"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "semantic-model",
+      "direct-lake",
+      "power-bi"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Direct Lake",
+        "url": "https://docs.microsoft.com/en-us/power-bi/enterprise/directlake-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Reduces import compute; scales with query volume"
+  },
+  {
+    "id": "hub-spoke-workspace",
+    "name": "Hub-and-Spoke Workspace Design",
+    "domain": "Data Organization and Structuring",
+    "domainId": 1,
+    "category": "Workspace Architecture",
+    "summary": "Hub workspace contains shared reference data; spoke workspaces (HR, Recruiting, Finance) build domain-specific analytics.",
+    "description": "Central Hub maintains employee master, org structure, cost centers. Spokes use shortcuts to reference Hub and build domain analytics.",
+    "fabricComponents": [
+      "Workspaces",
+      "OneLake",
+      "Lakehouse",
+      "Shortcuts"
+    ],
+    "pros": [
+      "Centralizes reference data governance.",
+      "Enables autonomous spoke teams.",
+      "Simplifies permission management."
+    ],
+    "cons": [
+      "Cross-workspace dependencies add complexity.",
+      "Hub requires dedicated team.",
+      "Network latency for shortcuts."
+    ],
+    "usageInstructions": "1. Create Hub workspace. 2. Populate with reference tables. 3. Create Spoke workspaces. 4. Spoke teams create shortcuts to Hub. 5. Spoke builds own layers. 6. Establish data review board. 7. Document dependencies.",
+    "governanceConsiderations": "Hub requires clear ownership and change management. Strict Hub permissions: stewards only. Enforce RLS at Spoke level. Document contracts. Monitor dependencies.",
+    "peopleAnalyticsUseCases": [
+      "Central HR Hub with Recruiting, Compensation spokes.",
+      "Finance Hub with HR spoke for cost allocation.",
+      "Executive Hub with HR spoke for talent alignment."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "onelake-shortcuts"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "workspace-design",
+      "hub-spoke"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Workspace Management",
+        "url": "https://docs.microsoft.com/en-us/fabric/admin/workspaces"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Hub shared across spokes; separate Spoke costs"
+  },
+  {
+    "id": "spark-notebook-etl",
+    "name": "Spark Notebook ETL Pipelines",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "ETL Development",
+    "summary": "PySpark notebooks for complex Bronze-to-Silver and Silver-to-Gold transformations with full programming power.",
+    "description": "Notebooks provide flexibility for complex logic, iterative development, and large-scale transformations. Payroll notebooks standardize fields, fill missing dates, calculate tenure.",
+    "fabricComponents": [
+      "Notebook",
+      "Spark",
+      "PySpark",
+      "Lakehouse",
+      "Delta Lake"
+    ],
+    "pros": [
+      "Ultimate flexibility for complex business logic.",
+      "Cell-level execution enables step-by-step debugging.",
+      "Automatic scaling to large datasets."
+    ],
+    "cons": [
+      "Requires Python/Scala expertise.",
+      "No visual lineage or profiling.",
+      "Harder to govern."
+    ],
+    "usageInstructions": "1. Create notebook. 2. Read Bronze: df = spark.read.table(). 3. Transform (standardize, validate, enrich). 4. Write to Silver. 5. Test on sample data. 6. Schedule as job. 7. Add error handling.",
+    "governanceConsiderations": "Implement code review for notebooks. Version control via Git. Restrict modify permissions. Log all transformations. Document assumptions.",
+    "peopleAnalyticsUseCases": [
+      "Complex payroll ETL with reconciliation.",
+      "Employee movement tracking via snapshots.",
+      "Unified talent dataset from multiple sources."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "delta-lake-partitioning",
+      "incremental-watermark"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "etl",
+      "spark",
+      "pyspark",
+      "transformation"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Spark Notebooks",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-engineering/notebook-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "2-5 days per pipeline",
+    "costImplications": "Scales with complexity and volume"
+  },
+  {
+    "id": "dataflow-gen2",
+    "name": "Dataflow Gen2 Low-Code Transformations",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "ETL Development",
+    "summary": "Power Query Online visual ETL for simple-to-moderate transformations without coding.",
+    "description": "Graphical UI for filter, merge, group, enrich. Employee master ingest, remove duplicates, rename columns, output to Lakehouse.",
+    "fabricComponents": [
+      "Dataflow Gen2",
+      "Power Query Online",
+      "Lakehouse",
+      "Power BI"
+    ],
+    "pros": [
+      "Reduces time-to-delivery for standard transforms.",
+      "Built-in data profiling and quality checks.",
+      "Native Power BI integration."
+    ],
+    "cons": [
+      "Limited to moderately complex logic.",
+      "Performance degrades on large datasets.",
+      "Harder to version control and CI/CD."
+    ],
+    "usageInstructions": "1. Create Dataflow Gen2. 2. Connect to source. 3. Apply transforms: Remove Duplicates, Filter, Rename. 4. Group/summarize if needed. 5. Merge with references. 6. Preview and validate. 7. Configure destination. 8. Schedule refresh.",
+    "governanceConsiderations": "Document formulas clearly. Establish change approval. Monitor refresh times. Use as preferred entry for business users. Implement labels on outputs.",
+    "peopleAnalyticsUseCases": [
+      "Weekly employee snapshot: ingest, dedup, filter, output.",
+      "Department cost center mapping and aggregation.",
+      "Applicant data prep for recruiting analytics."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "data-quality-validation"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "etl",
+      "low-code",
+      "power-query"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Dataflow Gen2",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-factory/create-first-dataflow-gen2"
+      }
+    ],
+    "estimatedImplementationEffort": "1-3 days",
+    "costImplications": "Lower compute for simple transforms; scales with frequency"
+  },
+  {
+    "id": "incremental-watermark",
+    "name": "Incremental Loading with Watermarks",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "ETL Efficiency",
+    "summary": "Captures only new/modified records since last run using watermark columns to reduce refresh time.",
+    "description": "Store max last_modified_date in control table; query only records > previous watermark. Nightly refresh hours reduces to minutes.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "Lakehouse",
+      "Delta Lake",
+      "Control Tables"
+    ],
+    "pros": [
+      "Reduces refresh from hours to minutes.",
+      "Scales elegantly with constant change volume.",
+      "Enables real-time/near-real-time analytics."
+    ],
+    "cons": [
+      "Requires reliable source change tracking.",
+      "Complex to handle late-arriving data.",
+      "Difficult recovery from failures."
+    ],
+    "usageInstructions": "1. Create control table for watermarks. 2. Read previous watermark. 3. Query source with filter. 4. Merge into Silver. 5. Update watermark. 6. Monitor for late data.",
+    "governanceConsiderations": "Govern source change-tracking columns. Document watermark logic. Implement monitoring. Archive watermarks. Establish reset procedures.",
+    "peopleAnalyticsUseCases": [
+      "Employee transactions with daily incremental loads.",
+      "Real-time headcount dashboard.",
+      "Employee history capturing changes."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "spark-notebook-etl",
+      "scd-type-2"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "spark-notebook-etl",
+      "medallion-architecture"
+    ],
+    "tags": [
+      "incremental",
+      "watermark",
+      "etl"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Delta Merge",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-engineering/delta-optimization"
+      }
+    ],
+    "estimatedImplementationEffort": "3-5 days",
+    "costImplications": "Reduces 80-90% vs full reload"
+  },
+  {
+    "id": "scd-type-2",
+    "name": "Slowly Changing Dimensions Type 2",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "Dimension Management",
+    "summary": "Maintains historical versions with validity dates enabling time-travel analysis of attribute changes.",
+    "description": "New rows created for changes with effective_date, end_date. Promotion creates new employee row; old row marked ended. Enables salary progression analysis.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "Delta Lake",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Enables temporal analysis and past-state reconstruction.",
+      "Maintains historical context for metrics.",
+      "Supports full audit trail."
+    ],
+    "cons": [
+      "Storage overhead from historical versions.",
+      "Complex merge logic required.",
+      "Analytics queries become more complex."
+    ],
+    "usageInstructions": "1. Design dimension with surrogate key, effective_date, end_date, current_flag. 2. Initial load. 3. On update: END previous, INSERT new. 4. Merge into dimension. 5. Validate no overlaps.",
+    "governanceConsiderations": "Document merge logic thoroughly. Implement validation checks. Archive old dimensions. Use selectively. Establish retention policies.",
+    "peopleAnalyticsUseCases": [
+      "Career progression analysis with salary growth.",
+      "Org change analysis with historical reporting lines.",
+      "Compensation cohort analysis."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "spark-notebook-etl",
+      "incremental-watermark"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "spark-notebook-etl",
+      "medallion-architecture"
+    ],
+    "tags": [
+      "scd",
+      "slowly-changing",
+      "temporal"
+    ],
+    "referenceLinks": [
+      {
+        "label": "SCD Patterns",
+        "url": "https://en.wikipedia.org/wiki/Slowly_changing_dimension"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 days",
+    "costImplications": "Storage 20-50% higher for history"
+  },
+  {
+    "id": "cdc-change-capture",
+    "name": "Change Data Capture (CDC) for Auditing",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "Data Auditing",
+    "summary": "Records before/after values of all modifications with user and timestamp for compliance audit trails.",
+    "description": "Salary update triggers record logging old/new values. Audit table captures INSERT/UPDATE/DELETE with metadata. Supports investigations.",
+    "fabricComponents": [
+      "Warehouse",
+      "Spark Notebook",
+      "Audit Tables"
+    ],
+    "pros": [
+      "Complete audit trail for compliance.",
+      "Enables real-time alerting on sensitive changes.",
+      "Supports efficient incremental processing."
+    ],
+    "cons": [
+      "Increases write overhead and latency.",
+      "Audit tables grow very large.",
+      "Edge cases require careful handling."
+    ],
+    "usageInstructions": "1. Create audit table. 2. Trigger on updates records changes. 3. Archive records >7 years. 4. Expose to compliance via Power BI. 5. Set up alerts.",
+    "governanceConsiderations": "Restrict to compliance/audit only. Establish retention policies. Document audited fields. Archive to cold storage. Use for investigation support.",
+    "peopleAnalyticsUseCases": [
+      "Compliance auditing of salary changes.",
+      "Detecting unauthorized modifications.",
+      "Payroll reconciliation tracking."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "sensitivity-labels",
+      "scd-type-2",
+      "data-quality-validation"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "cdc",
+      "audit",
+      "compliance"
+    ],
+    "referenceLinks": [
+      {
+        "label": "CDC Patterns",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-warehouse/change-data-capture"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 days",
+    "costImplications": "Storage 10-30% overhead; consider tiered storage"
+  },
+  {
+    "id": "dbt-integration",
+    "name": "dbt Integration for Data Transformation",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "ETL Development",
+    "summary": "SQL-based dbt models with version control, testing, documentation enabling software engineering discipline.",
+    "description": "dbt projects organize SQL transformations with tests, lineage, documentation. Junior analysts contribute familiar SQL; dbt handles plumbing.",
+    "fabricComponents": [
+      "Warehouse",
+      "Lakehouse",
+      "dbt",
+      "Git",
+      "Spark SQL"
+    ],
+    "pros": [
+      "Brings software engineering to analytics.",
+      "Modular SQL enables junior analyst contribution.",
+      "Auto-generates lineage documentation."
+    ],
+    "cons": [
+      "Requires dbt and YAML knowledge.",
+      "Performance tuning less transparent.",
+      "Limited to SQL transformations."
+    ],
+    "usageInstructions": "1. Create dbt project. 2. Configure Warehouse target. 3. Write SQL models. 4. Define tests. 5. Run dbt run. 6. Commit to git. 7. Configure CI/CD.",
+    "governanceConsiderations": "Structure by medallion layers. Implement code review. Use dbt tests for quality. Document business context. Manage breaking changes carefully.",
+    "peopleAnalyticsUseCases": [
+      "HR transformation logic with employee, role, compensation models.",
+      "Collaborative analysis pipeline with code review.",
+      "Rapid metrics iteration."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "data-quality-validation",
+      "spark-notebook-etl"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "dbt",
+      "sql",
+      "transformation",
+      "version-control"
+    ],
+    "referenceLinks": [
+      {
+        "label": "dbt Docs",
+        "url": "https://docs.getdbt.com/"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Same as SQL compute; reduced overhead from reuse"
+  },
+  {
+    "id": "data-quality-validation",
+    "name": "Data Quality Validation Framework",
+    "domain": "Data Transformation and Processing",
+    "domainId": 2,
+    "category": "Quality Assurance",
+    "summary": "Automated checks after ETL for anomalies, nulls, schema violations, business rule violations preventing bad data propagation.",
+    "description": "Validation tests NULL values in required fields, validates salary ranges, confirms dept codes match reference, detects duplicates. Failures pause processes.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "dbt",
+      "Great Expectations",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Catches issues at source before propagation.",
+      "Builds analyst trust in data.",
+      "Enables quick root-cause analysis."
+    ],
+    "cons": [
+      "Requires upfront effort to define rules.",
+      "Can over-reject valid data.",
+      "Adds latency to pipelines."
+    ],
+    "usageInstructions": "1. Define rules: required_fields, ranges, valid values. 2. After load, run validation. 3. Check violations vs threshold. 4. Alert if exceeded. 5. Implement with dbt tests or Great Expectations.",
+    "governanceConsiderations": "Document rules with justification. Version in code. Archive results for audits. Use as data contract documentation. Establish escalation procedures.",
+    "peopleAnalyticsUseCases": [
+      "Payroll validation before Finance handoff.",
+      "Org hierarchy consistency checking.",
+      "HRIS reconciliation."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "spark-notebook-etl",
+      "dbt-integration"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "data-quality",
+      "validation",
+      "testing"
+    ],
+    "referenceLinks": [
+      {
+        "label": "dbt Tests",
+        "url": "https://docs.getdbt.com/docs/building-a-dbt-project/tests"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Validation is 5-10% of ETL compute"
+  },
+  {
+    "id": "purview-data-map",
+    "name": "Microsoft Purview Data Map",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Data Catalog",
+    "summary": "Creates comprehensive data catalog in Purview mapping all assets, lineage, classifications, and sensitive data locations.",
+    "description": "Purview scans Fabric workspace discovering tables, columns, lineage. Classifications mark PII (SSN, salary). Stewards govern assets and ownership.",
+    "fabricComponents": [
+      "Microsoft Purview",
+      "Fabric",
+      "Lakehouse",
+      "Warehouse"
+    ],
+    "pros": [
+      "Provides complete asset inventory and lineage.",
+      "Automates sensitive data discovery.",
+      "Enables steward governance at scale."
+    ],
+    "cons": [
+      "Requires significant setup and configuration.",
+      "Scans can be resource-intensive.",
+      "Learning curve for Purview concepts."
+    ],
+    "usageInstructions": "1. Connect Fabric to Purview. 2. Configure scans. 3. Run scans. 4. Review classifications. 5. Assign stewards. 6. Create business glossary. 7. Document assets.",
+    "governanceConsiderations": "Use Purview as source of truth for data governance. Integrate classifications with sensitivity labels. Assign stewards for critical assets. Track data quality metrics. Update regularly.",
+    "peopleAnalyticsUseCases": [
+      "Discover all HR data assets across organization.",
+      "Track payroll data lineage from source to reports.",
+      "Identify PII exposure and mitigation paths."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "sensitivity-labels",
+      "row-level-security",
+      "cdc-change-capture"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "data-catalog",
+      "governance",
+      "purview",
+      "lineage"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Microsoft Purview",
+        "url": "https://docs.microsoft.com/en-us/purview/"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Purview licensing plus scan compute"
+  },
+  {
+    "id": "sensitivity-labels",
+    "name": "Sensitivity Labels for Data Classification",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Data Protection",
+    "summary": "Applies sensitivity labels (Highly Confidential, Confidential, Internal) to tables and columns triggering data masking and access controls.",
+    "description": "Label SSN and salary columns as Highly Confidential; Purview enforces masking and restricts query results. Labels cascade to reports and exports.",
+    "fabricComponents": [
+      "Sensitivity Labels",
+      "Purview",
+      "Lakehouse",
+      "Warehouse",
+      "Power BI"
+    ],
+    "pros": [
+      "Automated protection based on content classification.",
+      "Enforcement applies across Fabric and Power BI.",
+      "Cascades to exports and reports."
+    ],
+    "cons": [
+      "Initial labeling requires effort.",
+      "Label enforcement can break some use cases.",
+      "Requires governance process."
+    ],
+    "usageInstructions": "1. Define label taxonomy. 2. Create labels in Security & Compliance. 3. Apply to tables/columns. 4. Configure label policies. 5. Test masking. 6. Monitor usage.",
+    "governanceConsiderations": "Establish consistent label taxonomy. Assign classification responsibility. Monitor label compliance. Update as data changes. Train users.",
+    "peopleAnalyticsUseCases": [
+      "Mark SSN, salary, health data as Highly Confidential.",
+      "Restrict export of labeled data.",
+      "Auto-mask salary in development environment."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "purview-data-map",
+      "row-level-security",
+      "dynamic-data-masking"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "sensitivity-labels",
+      "classification",
+      "pii",
+      "protection"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Sensitivity Labels",
+        "url": "https://docs.microsoft.com/en-us/purview/sensitivity-labels"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead; licensing included in Purview"
+  },
+  {
+    "id": "row-level-security",
+    "name": "Row-Level Security (RLS) at Gold Layer",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Access Control",
+    "summary": "Restricts query results based on user identity/role so managers see only their team's data and employees see personal data.",
+    "description": "RLS rules evaluated at query time. HR admin sees all employees; manager sees only direct reports. Prevents accidental overexposure.",
+    "fabricComponents": [
+      "Warehouse",
+      "Semantic Model",
+      "Power BI",
+      "RLS Roles"
+    ],
+    "pros": [
+      "Query-time enforcement is performant.",
+      "Prevents overexposure through accidental queries.",
+      "Works across Warehouse and Power BI."
+    ],
+    "cons": [
+      "RLS logic can become complex.",
+      "Debugging RLS issues is difficult.",
+      "Semantic model must support RLS columns."
+    ],
+    "usageInstructions": "1. Identify RLS dimension (e.g., manager_id, department). 2. Create Warehouse views with RLS. 3. In semantic model, define RLS roles. 4. Map users to roles. 5. Test query results per role. 6. Assign roles to users.",
+    "governanceConsiderations": "RLS is critical for HR data. Test thoroughly before production. Document RLS logic. Monitor for overexposure. Update when org changes.",
+    "peopleAnalyticsUseCases": [
+      "Managers see direct reports salary; executives see all.",
+      "Employees see personal data only.",
+      "HR sees department; Finance sees cost center salary."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "sensitivity-labels",
+      "certified-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "rls",
+      "row-level-security",
+      "access-control"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Row-Level Security",
+        "url": "https://docs.microsoft.com/en-us/power-bi/enterprise/service-admin-rls"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal compute overhead"
+  },
+  {
+    "id": "dynamic-data-masking",
+    "name": "Dynamic Data Masking for Development/Test",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Data Protection",
+    "summary": "Masks sensitive data values in non-production environments so developers see realistic data without exposure.",
+    "description": "Replace salary values with 0, truncate SSN to last 4 digits, replace names with 'Employee-123'. Development team tests with masked data.",
+    "fabricComponents": [
+      "Warehouse",
+      "Spark Notebook",
+      "Data Masking Policies"
+    ],
+    "pros": [
+      "Enables realistic testing without sensitive data exposure.",
+      "Reduces security incidents from dev environment breaches.",
+      "Supports faster dev cycles without data sanitization."
+    ],
+    "cons": [
+      "Masking logic can affect performance.",
+      "Developers frustrated by realistic data lack.",
+      "Complex to mask consistently."
+    ],
+    "usageInstructions": "1. Create dev/test environments. 2. Define masking rules for sensitive columns. 3. Apply masks on data refresh. 4. Validate masking prevents identification. 5. Monitor compliance.",
+    "governanceConsiderations": "Mask all sensitive data in non-prod. Maintain consistent masking across all clones. Document masking rules. Monitor mask effectiveness.",
+    "peopleAnalyticsUseCases": [
+      "Dev database with masked SSN, salary for developers.",
+      "Test environment with realistic structure but masked values.",
+      "Compliance environment with redacted data."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "sensitivity-labels",
+      "row-level-security"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "data-masking",
+      "pii-protection",
+      "development"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Data Masking",
+        "url": "https://docs.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead for masking operations"
+  },
+  {
+    "id": "abac-access-control",
+    "name": "Attribute-Based Access Control (ABAC)",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Access Control",
+    "summary": "Access decisions based on user attributes (department, role, location) plus resource attributes enabling fine-grained, scalable permissions.",
+    "description": "Role/department attributes determine access. HR team member + HR resource = access. Scales better than managing individual user permissions.",
+    "fabricComponents": [
+      "Workspace Permissions",
+      "Semantic Model Roles",
+      "Azure AD Groups"
+    ],
+    "pros": [
+      "Scales to large organizations.",
+      "Changes managed through attributes, not user lists.",
+      "Reduces permission management overhead."
+    ],
+    "cons": [
+      "Requires attribute governance.",
+      "Complex logic can be hard to audit.",
+      "Debugging attribute-based denials difficult."
+    ],
+    "usageInstructions": "1. Define access attributes. 2. Populate attributes in Azure AD. 3. Create Azure AD groups by attributes. 4. Assign groups to Workspace/Model roles. 5. Test access per attribute combination. 6. Monitor attribute changes.",
+    "governanceConsiderations": "Attribute definitions require business input. Master attributes in Azure AD. Audit attribute changes. Regular access reviews. Update as org changes.",
+    "peopleAnalyticsUseCases": [
+      "Department attribute controls workspace access.",
+      "Role attribute determines semantic model permissions.",
+      "Location attribute gates data access.",
+      "Manager attribute enables RLS."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "row-level-security",
+      "workspace-permission-governance"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "abac",
+      "attribute-based",
+      "access-control"
+    ],
+    "referenceLinks": [
+      {
+        "label": "ABAC Concepts",
+        "url": "https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/overview"
+      }
+    ],
+    "estimatedImplementationEffort": "4-6 weeks",
+    "costImplications": "Azure AD licensing; minimal compute"
+  },
+  {
+    "id": "workspace-permission-governance",
+    "name": "Workspace Permission Governance",
+    "domain": "Data Governance and Security",
+    "domainId": 3,
+    "category": "Access Control",
+    "summary": "Manages workspace role assignments (Admin, Member, Contributor, Viewer) through approval workflows preventing unauthorized access creep.",
+    "description": "Access requests go through approval. Quarterly access reviews. Admins audit who has what role. Revoke unused access promptly.",
+    "fabricComponents": [
+      "Workspaces",
+      "Roles",
+      "Azure AD",
+      "Access Reviews"
+    ],
+    "pros": [
+      "Prevents unauthorized access accumulation.",
+      "Audit trail of who approves access.",
+      "Regular reviews catch stale access."
+    ],
+    "cons": [
+      "Adds overhead to access provisioning.",
+      "Review fatigue with many users.",
+      "Requires disciplined process."
+    ],
+    "usageInstructions": "1. Define role matrix. 2. Establish request process. 3. Configure approval workflow. 4. Quarterly access review. 5. Deprovision unused access. 6. Audit log.",
+    "governanceConsiderations": "Clear role definitions. Documented request process. Approval authority defined. Review frequency set. Audit logged.",
+    "peopleAnalyticsUseCases": [
+      "Request approval for workspace access.",
+      "Quarterly review of HR Analytics workspace roles.",
+      "Audit trail for compliance."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "abac-access-control",
+      "purview-data-map"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "workspace-permissions",
+      "governance",
+      "access-control"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Workspace Roles",
+        "url": "https://docs.microsoft.com/en-us/fabric/admin/roles"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead"
+  },
+  {
+    "id": "directlake-power-bi",
+    "name": "Direct Lake Power BI Semantic Models",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "BI Modeling",
+    "summary": "Power BI semantic models using Direct Lake connectivity to Fabric Gold tables for real-time BI without data import.",
+    "description": "Gold tables feed Power BI directly via Direct Lake. No nightly imports. BI analysts refresh tables instantly. Dashboards always show latest data.",
+    "fabricComponents": [
+      "Power BI",
+      "Semantic Model",
+      "Direct Lake",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Real-time data for dashboards.",
+      "No import bottleneck.",
+      "Simplified data pipeline."
+    ],
+    "cons": [
+      "Requires optimized Gold tables.",
+      "Less transformation flexibility.",
+      "Network latency possible."
+    ],
+    "usageInstructions": "1. Create semantic model in Workspace. 2. Connect to Gold tables via Direct Lake. 3. Define relationships. 4. Create measures. 5. Build reports. 6. Publish. 7. Monitor performance.",
+    "governanceConsiderations": "Gold tables must be governed. Control who modifies lakehouse. Apply RLS at semantic model level. Document data contracts.",
+    "peopleAnalyticsUseCases": [
+      "Real-time HR dashboard from Gold tables.",
+      "Executive payroll dashboard.",
+      "Live recruiting pipeline dashboard."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "direct-lake-semantic-model",
+      "delta-lake-partitioning"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "power-bi",
+      "direct-lake",
+      "semantic-model"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Direct Lake BI",
+        "url": "https://docs.microsoft.com/en-us/power-bi/enterprise/directlake-best-practices"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Reduces Premium capacity cost vs import"
+  },
+  {
+    "id": "storage-mode-selection",
+    "name": "Storage Mode Selection (Import/DirectQuery/Dual)",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "BI Modeling",
+    "summary": "Chooses optimal storage mode per table based on size, update frequency, and performance requirements.",
+    "description": "Import small lookup tables for speed. DirectQuery large slow-changing fact tables. Dual mode combines both for flexibility.",
+    "fabricComponents": [
+      "Power BI",
+      "Semantic Model",
+      "Warehouse",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Optimizes performance and refresh time.",
+      "Reduces Premium capacity utilization.",
+      "Flexibility for heterogeneous requirements."
+    ],
+    "cons": [
+      "Increases modeling complexity.",
+      "DirectQuery can be slow without optimization.",
+      "Users must understand modes."
+    ],
+    "usageInstructions": "1. Analyze table size and query frequency. 2. Small/frequently accessed = Import. 3. Large/slow-changing = DirectQuery. 4. Mixed = Dual. 5. Monitor refresh times. 6. Adjust modes based on perf.",
+    "governanceConsiderations": "Document storage mode decisions. Monitor refresh failures. Update source query optimization. Test DirectQuery performance.",
+    "peopleAnalyticsUseCases": [
+      "Import employee dimension; DirectQuery large payroll facts.",
+      "Dual mode org hierarchy with frequent ref lookup.",
+      "Import cost center lookup; DirectQuery salary facts."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "directlake-power-bi",
+      "certified-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "storage-mode",
+      "power-bi",
+      "performance"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Storage Modes",
+        "url": "https://docs.microsoft.com/en-us/power-bi/transform-model/desktop-storage-mode"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Optimizes capacity utilization"
+  },
+  {
+    "id": "composite-model",
+    "name": "Composite Models (Multi-Source Mashing)",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "BI Modeling",
+    "summary": "Combines tables from multiple sources (Lakehouse, Warehouse, SQL, Excel) in single semantic model for unified analytics.",
+    "description": "Employee master from Lakehouse, payroll from Warehouse, survey data from Excel. Composite model joins across sources.",
+    "fabricComponents": [
+      "Power BI",
+      "Semantic Model",
+      "Composite Model",
+      "Multiple Sources"
+    ],
+    "pros": [
+      "Unified analytics across sources.",
+      "Reduces data movement.",
+      "Flexible source management."
+    ],
+    "cons": [
+      "Query complexity increases.",
+      "Cross-source joins can be slow.",
+      "Debugging difficult."
+    ],
+    "usageInstructions": "1. Create semantic model. 2. Add tables from multiple sources. 3. Define relationships across sources. 4. Create measures. 5. Test query performance. 6. Monitor.",
+    "governanceConsiderations": "Document source integration logic. Monitor cross-source join performance. Establish data ownership across sources.",
+    "peopleAnalyticsUseCases": [
+      "Employee Lakehouse table joined with payroll Warehouse table.",
+      "Org Lakehouse joined with survey results from Excel.",
+      "Performance Lakehouse joined with compensation Warehouse."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "storage-mode-selection",
+      "certified-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "composite-model",
+      "multi-source",
+      "power-bi"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Composite Models",
+        "url": "https://docs.microsoft.com/en-us/power-bi/transform-model/desktop-composite-models"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Higher compute for cross-source joins"
+  },
+  {
+    "id": "certified-semantic-model",
+    "name": "Certified Semantic Models",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "BI Governance",
+    "summary": "BI team certifies semantic models ensuring consistent definitions, quality metrics, and single source of truth for organization.",
+    "description": "Gold-layer semantic models certified by BI team mark metrics as authoritative. Analysts use certified models for consistency.",
+    "fabricComponents": [
+      "Power BI",
+      "Semantic Model",
+      "Workspace"
+    ],
+    "pros": [
+      "Ensures metric consistency across dashboards.",
+      "Reduces metric duplication.",
+      "Facilitates self-service BI."
+    ],
+    "cons": [
+      "Requires strong BI governance.",
+      "Slows new model deployment.",
+      "Can bottleneck innovation."
+    ],
+    "usageInstructions": "1. Build semantic model. 2. Document metrics and definitions. 3. Have BI team certify. 4. Mark as Certified. 5. Analysts build reports. 6. Update as needed.",
+    "governanceConsiderations": "Establish certification criteria. Document metric definitions. Review before certification. Update certification on changes.",
+    "peopleAnalyticsUseCases": [
+      "Certified headcount metric used across dashboards.",
+      "Certified FTE calculation model.",
+      "Certified cost per hire metric."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "directlake-power-bi",
+      "storage-mode-selection",
+      "composite-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "certified-model",
+      "governance",
+      "metrics"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Certified Models",
+        "url": "https://docs.microsoft.com/en-us/power-bi/collaborate-share/service-certify-datasets"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead"
+  },
+  {
+    "id": "paginated-reports",
+    "name": "Paginated Reports for Formal Documents",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "Report Development",
+    "summary": "Power BI paginated reports for pixel-perfect formal documents like payroll statements, regulatory reports, and audit certifications.",
+    "description": "Paginated reports in Power BI for formatted output. Employee tax statements, OFCCP compliance reports, board summaries.",
+    "fabricComponents": [
+      "Power BI",
+      "Paginated Reports",
+      "Warehouse",
+      "Semantic Model"
+    ],
+    "pros": [
+      "Pixel-perfect formatting for formal documents.",
+      "Supports complex layouts and headers.",
+      "Suitable for printing and distribution."
+    ],
+    "cons": [
+      "Slower to develop than dashboards.",
+      "Limited interactivity.",
+      "Requires RDL knowledge."
+    ],
+    "usageInstructions": "1. Create paginated report in Power BI. 2. Define parameters. 3. Design layout. 4. Connect to data source. 5. Format for printing. 6. Test output. 7. Schedule.",
+    "governanceConsiderations": "Formal reports require approval. Document generation logic. Maintain version history. Ensure data accuracy.",
+    "peopleAnalyticsUseCases": [
+      "Employee tax statements generated monthly.",
+      "OFCCP compliance report certification.",
+      "Board summary with specific formatting.",
+      "Payroll audit report."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "storage-mode-selection",
+      "certified-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "paginated-reports",
+      "formal-documents"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Paginated Reports",
+        "url": "https://docs.microsoft.com/en-us/power-bi/paginated-reports/paginated-reports-report-builder-power-bi"
+      }
+    ],
+    "estimatedImplementationEffort": "2-4 weeks",
+    "costImplications": "Minimal overhead; scales with report volume"
+  },
+  {
+    "id": "metrics-scorecard",
+    "name": "Power BI Metrics Scorecards",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "Report Development",
+    "summary": "Visual display of key metrics with goals, trends, and out-of-range alerts enabling executive dashboards.",
+    "description": "Headcount goal vs actual, cost per hire vs target, time-to-fill trend. Scorecard shows metric, trend, variance from goal.",
+    "fabricComponents": [
+      "Power BI",
+      "Metrics",
+      "Semantic Model"
+    ],
+    "pros": [
+      "Executive-friendly visualization.",
+      "Quick identification of variances.",
+      "Supports scorecards at any granularity."
+    ],
+    "cons": [
+      "Requires careful metric selection.",
+      "Not suited for deep analysis.",
+      "Goal management overhead."
+    ],
+    "usageInstructions": "1. Select metrics. 2. Define goals. 3. Create scorecard visual. 4. Connect to semantic model. 5. Format for execs. 6. Publish.",
+    "governanceConsiderations": "Goals reviewed and approved. Metric definitions consistent. Regular updates. Executive alignment on priorities.",
+    "peopleAnalyticsUseCases": [
+      "Executive dashboard with headcount, cost, turnover metrics.",
+      "Department scorecard with regional goals.",
+      "Recruiting metrics scorecard with time-to-fill, cost-per-hire."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "certified-semantic-model",
+      "directlake-power-bi"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "metrics-scorecard",
+      "executive-dashboard"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Metrics Scorecard",
+        "url": "https://docs.microsoft.com/en-us/power-bi/create-reports/service-metrics-cards"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Minimal overhead"
+  },
+  {
+    "id": "deployment-pipelines",
+    "name": "Power BI Deployment Pipelines",
+    "domain": "Business Intelligence and Reporting",
+    "domainId": 4,
+    "category": "DevOps",
+    "summary": "Automated promotion of BI artifacts from development through staging to production enabling controlled releases.",
+    "description": "Dev \u2192 Stage \u2192 Prod. Semantic models and reports tested in stage before prod deployment. Reduces errors in production.",
+    "fabricComponents": [
+      "Power BI",
+      "Deployment Pipelines",
+      "Semantic Model",
+      "Reports"
+    ],
+    "pros": [
+      "Reduces deployment errors.",
+      "Enables testing before production.",
+      "Audit trail of changes."
+    ],
+    "cons": [
+      "Setup complexity.",
+      "Requires discipline in dev/stage separation.",
+      "Can slow development cycles."
+    ],
+    "usageInstructions": "1. Create three workspaces: Dev, Stage, Prod. 2. Set up pipeline. 3. Develop in Dev. 4. Deploy to Stage. 5. Test. 6. Deploy to Prod. 7. Monitor.",
+    "governanceConsiderations": "Change approval for Prod. Test in Stage. Monitor Prod performance. Rollback procedures. Post-mortem on failures.",
+    "peopleAnalyticsUseCases": [
+      "Develop dashboard in Dev; promote through Stage to Prod.",
+      "Semantic model change testing before production.",
+      "New report rollout with staging validation."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "certified-semantic-model",
+      "directlake-power-bi"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "deployment-pipelines",
+      "devops",
+      "power-bi"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Deployment Pipelines",
+        "url": "https://docs.microsoft.com/en-us/power-bi/create-reports/deployment-pipelines-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Minimal overhead"
+  },
+  {
+    "id": "batch-inference-pipeline",
+    "name": "Batch Inference Pipelines",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Operationalization",
+    "summary": "Regular batch scoring of employee records against trained ML models producing predictions (attrition risk, salary range) at scale.",
+    "description": "Weekly job scores all active employees with churn model. Output predictions to Gold layer. HR uses for retention focus.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "MLflow",
+      "Feature Store",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Scalable scoring for thousands of employees.",
+      "Scheduled inference keeps predictions current.",
+      "Batch approach efficient for throughput."
+    ],
+    "cons": [
+      "Latency from batch schedule.",
+      "Storage for predictions grows.",
+      "Model monitoring required."
+    ],
+    "usageInstructions": "1. Load feature store. 2. Load trained model from MLflow. 3. Score features. 4. Format output. 5. Write to Gold. 6. Schedule daily/weekly. 7. Monitor scores.",
+    "governanceConsiderations": "Document model assumptions. Monitor prediction distributions. Audit high-risk predictions. Update regularly.",
+    "peopleAnalyticsUseCases": [
+      "Weekly churn risk scoring of all employees.",
+      "Salary range prediction for compensation analysis.",
+      "Performance rating prediction."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "feature-store-delta",
+      "mlflow-model-registry",
+      "medallion-architecture"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "feature-store-delta"
+    ],
+    "tags": [
+      "ml",
+      "batch-inference",
+      "predictions"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Batch Scoring",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-science/model-serving"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Spark compute scales with employee count"
+  },
+  {
+    "id": "feature-store-delta",
+    "name": "Feature Store Implementation",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Infrastructure",
+    "summary": "Centralized repository of engineered features (tenure_years, salary_percentile) for reuse across ML models reducing redundancy.",
+    "description": "Feature computation once, reuse everywhere. Tenure_years calculated once from hire_date; all models use same value.",
+    "fabricComponents": [
+      "Delta Lake",
+      "Lakehouse",
+      "Feature Store",
+      "MLflow"
+    ],
+    "pros": [
+      "Features computed once, reused everywhere.",
+      "Ensures consistency across models.",
+      "Facilitates collaboration."
+    ],
+    "cons": [
+      "Setup overhead.",
+      "Feature staleness if not refreshed.",
+      "Storage growth."
+    ],
+    "usageInstructions": "1. Design features. 2. Compute features in Spark. 3. Store in Delta tables. 4. Register in feature store. 5. Models reference feature store. 6. Refresh regularly.",
+    "governanceConsiderations": "Document feature logic. Version feature definitions. Monitor freshness. Retire unused features.",
+    "peopleAnalyticsUseCases": [
+      "Tenure, salary percentile, performance rating features.",
+      "Department, manager, location features.",
+      "Historical aggregations: avg salary by dept."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "batch-inference-pipeline",
+      "mlflow-model-registry"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "feature-store",
+      "ml-infrastructure"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Feature Stores",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-science/data-science-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Storage for feature tables; compute for refresh"
+  },
+  {
+    "id": "mlflow-model-registry",
+    "name": "MLflow Model Registry",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Governance",
+    "summary": "Centralized repository for ML models with versioning, staging (Dev/Prod), and metadata enabling model lifecycle management.",
+    "description": "Models registered in MLflow. Dev version tested; Prod version deployed. Version history for rollback. Metadata documents model purpose.",
+    "fabricComponents": [
+      "MLflow",
+      "Spark Notebook",
+      "Model Registry"
+    ],
+    "pros": [
+      "Version control for models.",
+      "Staging enables testing.",
+      "Metadata enables governance.",
+      "Easy rollback."
+    ],
+    "cons": [
+      "Requires MLflow setup.",
+      "Deployment automation needed.",
+      "Model monitoring overhead."
+    ],
+    "usageInstructions": "1. Train model. 2. Register in MLflow. 3. Set Staging=Dev. 4. Test in Stage. 5. Transition to Prod. 6. Deploy. 7. Monitor.",
+    "governanceConsiderations": "Document model purpose, assumptions, metrics. Code review before Prod. Monitor performance. Track versions.",
+    "peopleAnalyticsUseCases": [
+      "Churn model versions tracked and tested.",
+      "Salary prediction model with Prod version.",
+      "Performance rating model with rollback capability."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "batch-inference-pipeline",
+      "feature-store-delta",
+      "model-drift-detection"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "feature-store-delta"
+    ],
+    "tags": [
+      "mlflow",
+      "model-registry",
+      "ml-governance"
+    ],
+    "referenceLinks": [
+      {
+        "label": "MLflow Registry",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-science/model-serving"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Minimal overhead for registry"
+  },
+  {
+    "id": "model-drift-detection",
+    "name": "Model Drift Detection and Monitoring",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Monitoring",
+    "summary": "Automated monitoring of model performance metrics detecting drift when predictions no longer match reality triggering retraining.",
+    "description": "Monitor churn model prediction accuracy. If accuracy drops below 70%, alert to retrain. Detect input data distribution changes.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "MLflow",
+      "Monitoring",
+      "Delta Lake"
+    ],
+    "pros": [
+      "Early detection of model decay.",
+      "Automated alerts trigger action.",
+      "Historical performance tracking."
+    ],
+    "cons": [
+      "Requires ground truth labels.",
+      "Monitoring setup overhead.",
+      "Retraining may be expensive."
+    ],
+    "usageInstructions": "1. Define performance metrics. 2. Set baseline and alert thresholds. 3. Score model on new data. 4. Compute metrics. 5. Alert if drift detected. 6. Retrain if needed.",
+    "governanceConsiderations": "Document drift thresholds. Establish retraining SLAs. Track model lifecycle. Post-mortem on failures.",
+    "peopleAnalyticsUseCases": [
+      "Monitor churn model accuracy; retrain monthly.",
+      "Detect salary prediction model degradation.",
+      "Alert on input data distribution shifts."
+    ],
+    "complexity": "High",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "batch-inference-pipeline",
+      "mlflow-model-registry"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "mlflow-model-registry"
+    ],
+    "tags": [
+      "model-drift",
+      "monitoring",
+      "ml-ops"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Model Monitoring",
+        "url": "https://docs.microsoft.com/en-us/fabric/data-science/model-serving"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Compute for drift detection and retraining"
+  },
+  {
+    "id": "fairness-bias-evaluation",
+    "name": "Fairness and Bias Evaluation",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Ethics",
+    "summary": "Evaluates ML models for bias in predictions across demographic groups (gender, race) ensuring fair and compliant hiring/promotion decisions.",
+    "description": "Churn model predictions should not systematically disfavor any demographic. Test for disparate impact. Document findings.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "Fairness Toolkit",
+      "Delta Lake"
+    ],
+    "pros": [
+      "Ensures compliance with bias regulations.",
+      "Detects systematic unfairness.",
+      "Supports ethical decision-making."
+    ],
+    "cons": [
+      "Requires labeled demographic data.",
+      "No perfect fairness definition.",
+      "Trade-offs between fairness metrics."
+    ],
+    "usageInstructions": "1. Get ground truth + demographics. 2. Run fairness analysis. 3. Compare metrics by group. 4. Document findings. 5. Adjust model if needed. 6. Retest.",
+    "governanceConsiderations": "Privacy-conscious demographic collection. Document assumptions. Legal review. Regular reassessment as data changes.",
+    "peopleAnalyticsUseCases": [
+      "Evaluate churn model for gender bias.",
+      "Assess promotion recommendation fairness.",
+      "Audit salary prediction by race/ethnicity."
+    ],
+    "complexity": "High",
+    "maturity": "Emerging",
+    "compatibleWith": [
+      "batch-inference-pipeline",
+      "mlflow-model-registry"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "mlflow-model-registry"
+    ],
+    "tags": [
+      "fairness",
+      "bias",
+      "ethics",
+      "ml"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Fairness Analysis",
+        "url": "https://docs.microsoft.com/en-us/azure/machine-learning/concept-fairness"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Analysis compute; typically small"
+  },
+  {
+    "id": "champion-challenger",
+    "name": "Champion-Challenger Model Testing",
+    "domain": "Machine Learning and Traditional AI",
+    "domainId": 5,
+    "category": "ML Experimentation",
+    "summary": "A/B testing of new model versions (Challenger) against current production model (Champion) in controlled experiments.",
+    "description": "Run new churn model on 10% of employees; compare predictions to current model. If Challenger performs better, promote.",
+    "fabricComponents": [
+      "Spark Notebook",
+      "MLflow",
+      "Delta Lake",
+      "Experimentation"
+    ],
+    "pros": [
+      "Safe testing of new models.",
+      "Data-driven promotion decisions.",
+      "Controlled rollout reduces risk."
+    ],
+    "cons": [
+      "Requires holdout population.",
+      "Delayed rollout of improvements.",
+      "Complex experiment management."
+    ],
+    "usageInstructions": "1. Designate Champion. 2. Train Challenger. 3. Split users: 90% Champion, 10% Challenger. 4. Run experiment. 5. Compare metrics. 6. Promote if better. 7. Full rollout.",
+    "governanceConsiderations": "Ethical experiment design. User consent where needed. Results documentation. Promotion approval process.",
+    "peopleAnalyticsUseCases": [
+      "Test new churn model on subset before full deployment.",
+      "A/B test salary prediction improvements.",
+      "Validate performance rating model changes."
+    ],
+    "complexity": "High",
+    "maturity": "GA",
+    "compatibleWith": [
+      "mlflow-model-registry",
+      "batch-inference-pipeline"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "mlflow-model-registry"
+    ],
+    "tags": [
+      "champion-challenger",
+      "ab-testing",
+      "experimentation"
+    ],
+    "referenceLinks": [
+      {
+        "label": "A/B Testing",
+        "url": "https://docs.microsoft.com/en-us/azure/machine-learning/concept-responsible-ml"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Compute for dual model scoring"
+  },
+  {
+    "id": "rag-fabric-grounded",
+    "name": "RAG (Retrieval-Augmented Generation) Fabric-Grounded",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "LLM-powered chatbot that retrieves employee data, org structure, policies from Fabric and generates answers grounded in actual data.",
+    "description": "'What are John's direct reports?' retrieves from org table, passes to LLM which answers. 'Top 5 highest salaries?' retrieves from payroll, generates list.",
+    "fabricComponents": [
+      "Azure OpenAI",
+      "Semantic Model",
+      "Lakehouse",
+      "RAG"
+    ],
+    "pros": [
+      "Answers grounded in actual data, not hallucinated.",
+      "Natural language interface to data.",
+      "Reduces manual report requests."
+    ],
+    "cons": [
+      "LLM cost with heavy usage.",
+      "Latency from retrieval + generation.",
+      "Requires prompt engineering."
+    ],
+    "usageInstructions": "1. Set up vector index on Gold tables. 2. Configure retrieval logic. 3. Connect to LLM API. 4. Test prompts. 5. Integrate with chat interface. 6. Monitor usage.",
+    "governanceConsiderations": "Retrieved data must respect RLS. Sensitive salary data must be masked. Log all queries for audit. Limit user query volume.",
+    "peopleAnalyticsUseCases": [
+      "HR chatbot answering org structure questions.",
+      "Employee compensation bot with salary band info.",
+      "Policy chatbot with benefits/leave policies."
+    ],
+    "complexity": "High",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "medallion-architecture",
+      "row-level-security",
+      "semantic-model-certification-pipeline"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture",
+      "row-level-security"
+    ],
+    "tags": [
+      "rag",
+      "generative-ai",
+      "chatbot"
+    ],
+    "referenceLinks": [
+      {
+        "label": "RAG Pattern",
+        "url": "https://docs.microsoft.com/en-us/azure/ai-services/openai/concepts/retrieval-augmented-generation"
+      }
+    ],
+    "estimatedImplementationEffort": "4-6 weeks",
+    "costImplications": "OpenAI API costs plus storage for vectors"
+  },
+  {
+    "id": "secure-chat-rls",
+    "name": "Secure Conversational Interface with RLS",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "Conversational AI interface enforcing row-level security so employees see only authorized data and managers see team data.",
+    "description": "Employee chatbot enforces that employees see personal data only; managers see team data. RLS applied at retrieval.",
+    "fabricComponents": [
+      "Chatbot Framework",
+      "RLS",
+      "Semantic Model",
+      "Azure AD"
+    ],
+    "pros": [
+      "Natural interface with built-in security.",
+      "Reduces query errors from RLS confusion.",
+      "Improves user experience."
+    ],
+    "cons": [
+      "RLS enforcement in retrieval complex.",
+      "Debugging RLS issues difficult.",
+      "Performance overhead."
+    ],
+    "usageInstructions": "1. Implement chatbot. 2. Identify user identity. 3. Apply RLS filter to retrieval. 4. Answer questions respecting RLS. 5. Log queries. 6. Monitor.",
+    "governanceConsiderations": "RLS must be correctly enforced. Audit RLS-filtered queries. Prevent RLS bypass through prompt injection.",
+    "peopleAnalyticsUseCases": [
+      "Employee chatbot showing personal salary only.",
+      "Manager chatbot with team-scoped salary data.",
+      "Executive chatbot with company-wide access."
+    ],
+    "complexity": "High",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "row-level-security",
+      "rag-fabric-grounded"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "row-level-security"
+    ],
+    "tags": [
+      "secure-chat",
+      "rls",
+      "conversational"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Secure Chatbots",
+        "url": "https://docs.microsoft.com/en-us/power-virtual-agents/"
+      }
+    ],
+    "estimatedImplementationEffort": "4-6 weeks",
+    "costImplications": "Chatbot platform + API costs"
+  },
+  {
+    "id": "azure-ai-foundry-integration",
+    "name": "Azure AI Foundry Integration",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "Integrates Azure AI Foundry (formerly Cognitive Services) for NLP, document understanding, and entity extraction on HR documents.",
+    "description": "Extract key info from resumes, offer letters, termination docs. Classify employee feedback as positive/negative. Structure unstructured data.",
+    "fabricComponents": [
+      "Azure AI Foundry",
+      "Form Recognizer",
+      "Text Analytics",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Pre-trained models for common NLP tasks.",
+      "Document understanding with form parsing.",
+      "Reduces custom ML effort."
+    ],
+    "cons": [
+      "API costs scale with usage.",
+      "Limited customization compared to custom ML.",
+      "Latency for real-time extraction."
+    ],
+    "usageInstructions": "1. Connect Azure AI Foundry. 2. Select service (Form Recognizer, Text Analytics). 3. Call API on documents. 4. Store results in Lakehouse. 5. Reference in analytics.",
+    "governanceConsiderations": "PII in documents must be protected. API calls logged. Retention policy for extracted data.",
+    "peopleAnalyticsUseCases": [
+      "Resume parsing to extract skills, experience.",
+      "Employee feedback analysis: sentiment classification.",
+      "Offer letter extraction: salary, start date.",
+      "Performance review entity extraction."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "spark-notebook-etl"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "azure-ai",
+      "nlp",
+      "document-understanding"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Azure AI Foundry",
+        "url": "https://docs.microsoft.com/en-us/azure/ai-services/"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Azure AI Foundry API costs per request"
+  },
+  {
+    "id": "copilot-studio-grounded",
+    "name": "Copilot Studio with Fabric Data Grounding",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "Power Platform Copilot Studio integration with Fabric data enabling custom copilots grounded in HR analytics without custom coding.",
+    "description": "Drag-drop copilot builder connecting to Fabric semantic models. Answers grounded in org data. No coding required.",
+    "fabricComponents": [
+      "Copilot Studio",
+      "Power Platform",
+      "Semantic Model",
+      "Fabric"
+    ],
+    "pros": [
+      "Low-code copilot creation.",
+      "Native Fabric integration.",
+      "Reduced development time.",
+      "Power Platform ecosystem."
+    ],
+    "cons": [
+      "Limited to Power Platform capabilities.",
+      "Customization limited compared to custom code.",
+      "Cost per interaction."
+    ],
+    "usageInstructions": "1. Create copilot in Studio. 2. Connect to Fabric semantic model. 3. Define intents. 4. Map to Fabric queries. 5. Test. 6. Deploy.",
+    "governanceConsiderations": "Semantic model permissions enforced. Audit conversations. Sensitive data restrictions.",
+    "peopleAnalyticsUseCases": [
+      "HR chatbot answering org questions.",
+      "Recruiter copilot with candidate data.",
+      "Employee self-service copilot."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "certified-semantic-model",
+      "direct-lake-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "copilot-studio",
+      "low-code",
+      "generative-ai"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Copilot Studio",
+        "url": "https://docs.microsoft.com/en-us/power-virtual-agents/"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Copilot Studio licensing"
+  },
+  {
+    "id": "semantic-search-vectors",
+    "name": "Semantic Search with Vector Embeddings",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "Vector embeddings of HR data (job descriptions, policies, performance reviews) enabling semantic similarity search.",
+    "description": "Embed job descriptions, search 'find roles similar to engineer.' Embed policies, search 'parental leave policy.'",
+    "fabricComponents": [
+      "Vector Store",
+      "Embeddings API",
+      "Lakehouse",
+      "Semantic Search"
+    ],
+    "pros": [
+      "Semantic similarity beyond keyword match.",
+      "Supports RAG and discovery use cases.",
+      "Natural language search."
+    ],
+    "cons": [
+      "Storage overhead for vectors.",
+      "Vector quality depends on embedding model.",
+      "Refresh complexity."
+    ],
+    "usageInstructions": "1. Embed HR content. 2. Store vectors in vector DB. 3. On query, embed user query. 4. Search vector space. 5. Return top matches. 6. Feed to LLM.",
+    "governanceConsiderations": "Vectors must preserve privacy of embedded content. Refresh vectors when source updates.",
+    "peopleAnalyticsUseCases": [
+      "Job description semantic search: find similar roles.",
+      "Policy search: natural language policy questions.",
+      "Performance review search: find similar feedback."
+    ],
+    "complexity": "High",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "rag-fabric-grounded",
+      "medallion-architecture"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "semantic-search",
+      "vectors",
+      "embeddings"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Vector Search",
+        "url": "https://docs.microsoft.com/en-us/azure/search/vector-search-overview"
+      }
+    ],
+    "estimatedImplementationEffort": "3-4 weeks",
+    "costImplications": "Vector DB storage plus embedding API costs"
+  },
+  {
+    "id": "llm-auto-narrative",
+    "name": "LLM Auto-Generated Narratives",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "LLM automatically generates narrative descriptions of dashboards, trends, and insights reducing reporting burden.",
+    "description": "Dashboard shows headcount down 5% YoY. LLM generates: 'Headcount declined 5% year-over-year to 1,200 from 1,263.'",
+    "fabricComponents": [
+      "Azure OpenAI",
+      "Power BI",
+      "Lakehouse"
+    ],
+    "pros": [
+      "Reduces manual report writing.",
+      "Generates consistent narratives.",
+      "Scales insights to many users."
+    ],
+    "cons": [
+      "LLM cost with scale.",
+      "Narrative quality depends on prompts.",
+      "May need human review for critical reports."
+    ],
+    "usageInstructions": "1. Extract dashboard metrics. 2. Format for LLM. 3. Call LLM with prompt template. 4. Generate narrative. 5. Insert in report. 6. Review.",
+    "governanceConsiderations": "LLM outputs must be reviewed before publication. Sensitive data in narratives must be protected.",
+    "peopleAnalyticsUseCases": [
+      "Dashboard narrative generation for executive summary.",
+      "Trend description in reports.",
+      "Anomaly narration.",
+      "Insight summarization."
+    ],
+    "complexity": "Medium",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "medallion-architecture",
+      "directlake-power-bi"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "llm",
+      "auto-narrative",
+      "generative-ai"
+    ],
+    "referenceLinks": [
+      {
+        "label": "LLM Integration",
+        "url": "https://docs.microsoft.com/en-us/azure/ai-services/openai/"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "OpenAI API costs per narrative generation"
+  },
+  {
+    "id": "hr-ai-guardrails",
+    "name": "HR-Specific AI Guardrails and Safety",
+    "domain": "Generative AI and Conversational Interfaces",
+    "domainId": 6,
+    "category": "Generative AI",
+    "summary": "Guardrails preventing AI from making inappropriate recommendations on hiring, termination, or compensation decisions.",
+    "description": "Prevent salary recommendations based on protected attributes. Prevent discriminatory hiring suggestions. Audit all recommendations.",
+    "fabricComponents": [
+      "Azure OpenAI",
+      "Guardrails Framework",
+      "Auditing"
+    ],
+    "pros": [
+      "Prevents discriminatory AI outputs.",
+      "Ensures compliance with employment law.",
+      "Reduces liability.",
+      "Builds user trust."
+    ],
+    "cons": [
+      "Guardrails overhead.",
+      "May block valid use cases.",
+      "Guardrail effectiveness hard to measure."
+    ],
+    "usageInstructions": "1. Define guardrails (no gender/race in salary), 2. Configure content filter. 3. Monitor LLM outputs. 4. Log violations. 5. Audit. 6. Retrain if needed.",
+    "governanceConsiderations": "Legal review of guardrails. Regular guardrail testing. Audit trail of all recommendations. Transparency with users.",
+    "peopleAnalyticsUseCases": [
+      "Salary recommendation guardrail: no gender/race consideration.",
+      "Hiring recommendation guardrail: prevent age bias.",
+      "Termination recommendation: require human approval."
+    ],
+    "complexity": "High",
+    "maturity": "Emerging",
+    "compatibleWith": [
+      "rag-fabric-grounded",
+      "fairness-bias-evaluation"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "guardrails",
+      "ai-safety",
+      "compliance"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Responsible AI",
+        "url": "https://docs.microsoft.com/en-us/azure/machine-learning/concept-responsible-ml"
+      }
+    ],
+    "estimatedImplementationEffort": "4-6 weeks",
+    "costImplications": "Guardrails framework plus monitoring overhead"
+  },
+  {
+    "id": "data-activator-reflex",
+    "name": "Data Activator (Reflex) for Auto-Actions",
+    "domain": "Alerting, Automation, and Operational Intelligence",
+    "domainId": 7,
+    "category": "Automation",
+    "summary": "Automatic workflows triggered by data anomalies: high turnover in department \u2192 auto-email recruiter; forecast miss \u2192 escalate to VP.",
+    "description": "Monitor headcount by department. If any dept loses >10% of staff in a month, auto-trigger recruiting workflow. Alert manager.",
+    "fabricComponents": [
+      "Data Activator",
+      "Reflex",
+      "Semantic Model",
+      "Power Automate"
+    ],
+    "pros": [
+      "Responds to anomalies automatically.",
+      "Reduces manual monitoring.",
+      "Scales to many metrics."
+    ],
+    "cons": [
+      "False positives trigger wasted workflows.",
+      "Complex rule logic is hard to debug.",
+      "Costs with action volume."
+    ],
+    "usageInstructions": "1. Create rule on metric. 2. Define trigger condition. 3. Select action (email, Power Automate). 4. Test. 5. Deploy. 6. Monitor.",
+    "governanceConsiderations": "Rules must be approved. Test before prod. Monitor false positives. Log all actions. Disable poorly performing rules.",
+    "peopleAnalyticsUseCases": [
+      "High turnover alert \u2192 send recruiter email.",
+      "Salary anomaly detection \u2192 escalate to manager.",
+      "Hiring target miss \u2192 VP alert.",
+      "Compliance violation \u2192 legal escalation."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "certified-semantic-model"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [
+      "medallion-architecture"
+    ],
+    "tags": [
+      "data-activator",
+      "reflex",
+      "automation"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Data Activator",
+        "url": "https://docs.microsoft.com/en-us/fabric/real-time-analytics/data-activator/data-activator-introduction"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks per reflex",
+    "costImplications": "Minimal overhead; Power Automate action costs"
+  },
+  {
+    "id": "power-automate-triggers",
+    "name": "Power Automate Workflows with Data Triggers",
+    "domain": "Alerting, Automation, and Operational Intelligence",
+    "domainId": 7,
+    "category": "Automation",
+    "summary": "Power Automate workflows triggered by HR data changes automating notifications, approvals, and downstream processes.",
+    "description": "When new hire is added, automatically send welcome email, provision accounts, schedule onboarding. New termination \u2192 disable access.",
+    "fabricComponents": [
+      "Power Automate",
+      "Warehouse",
+      "Lakehouse",
+      "Connectors"
+    ],
+    "pros": [
+      "Visual workflow automation.",
+      "Wide connector ecosystem.",
+      "Reduces manual tasks."
+    ],
+    "cons": [
+      "Performance at scale is limited.",
+      "Complex logic becomes hard to maintain.",
+      "Cost per workflow run."
+    ],
+    "usageInstructions": "1. Create flow. 2. Set Fabric data trigger. 3. Add actions (email, API call). 4. Test. 5. Enable. 6. Monitor.",
+    "governanceConsiderations": "Flows must be approved. Sensitive actions require confirmation. Audit trail of executions. Disable unused flows.",
+    "peopleAnalyticsUseCases": [
+      "New hire trigger \u2192 welcome email, account provisioning.",
+      "Termination trigger \u2192 disable access, exit survey.",
+      "Promotion trigger \u2192 new org reporting, email announcement.",
+      "Review due date \u2192 email reminder to managers."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "data-activator-reflex"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "power-automate",
+      "workflows",
+      "automation"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Power Automate",
+        "url": "https://docs.microsoft.com/en-us/power-automate/"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 days per workflow",
+    "costImplications": "Power Automate licensing; per-action costs"
+  },
+  {
+    "id": "metric-summarization-engine",
+    "name": "Metric Summarization Engine",
+    "domain": "Alerting, Automation, and Operational Intelligence",
+    "domainId": 7,
+    "category": "Operational Intelligence",
+    "summary": "Automated daily/weekly email summaries of key metrics with trends and anomalies delivered to executives without manual compilation.",
+    "description": "Daily HR metrics digest: headcount, turnover, hiring pipeline, cost summary. Auto-generated, delivered to execs 7am.",
+    "fabricComponents": [
+      "Lakehouse",
+      "Semantic Model",
+      "Automation",
+      "Email"
+    ],
+    "pros": [
+      "Executives get key metrics automatically.",
+      "Reduces report compilation time.",
+      "Consistent delivery schedule."
+    ],
+    "cons": [
+      "Metric selection bias (may miss important changes).",
+      "Email fatigue if too frequent.",
+      "Setup complexity."
+    ],
+    "usageInstructions": "1. Define metrics. 2. Create automated query. 3. Format results. 4. Schedule (daily/weekly). 5. Email to distribution list. 6. Monitor engagement.",
+    "governanceConsiderations": "Metrics reviewed by leadership. Delivery list managed. Format consistent. Performance tracked.",
+    "peopleAnalyticsUseCases": [
+      "Daily HR dashboard metrics summary.",
+      "Weekly turnover report with anomalies.",
+      "Monthly compensation report to executives.",
+      "Quarterly talent metrics digest."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "directlake-power-bi"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "summarization",
+      "automation",
+      "metrics"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Scheduled Queries",
+        "url": "https://docs.microsoft.com/en-us/fabric/"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Minimal compute; scheduling overhead"
+  },
+  {
+    "id": "sla-freshness-monitoring",
+    "name": "SLA Freshness Monitoring",
+    "domain": "Alerting, Automation, and Operational Intelligence",
+    "domainId": 7,
+    "category": "Operational Intelligence",
+    "summary": "Monitoring pipeline SLAs ensuring data is refreshed within defined window (midnight refresh by 6am) with alerts on violations.",
+    "description": "Gold layer must refresh by 6am. If refresh doesn't complete, alert ops team. Track SLA compliance month-over-month.",
+    "fabricComponents": [
+      "Data Factory",
+      "Monitoring",
+      "Alerting"
+    ],
+    "pros": [
+      "Ensures users get fresh data on time.",
+      "Quick detection of pipeline failures.",
+      "SLA compliance visibility."
+    ],
+    "cons": [
+      "SLA setup requires discipline.",
+      "False alerts from planned maintenance.",
+      "Debugging SLA misses complex."
+    ],
+    "usageInstructions": "1. Define SLA (e.g., refresh by 6am). 2. Monitor pipeline completion. 3. Alert if missed. 4. Track compliance %. 5. Post-mortem on misses.",
+    "governanceConsiderations": "SLAs set realistically. Escalation procedures defined. Maintenance windows coordinated. Compliance reported.",
+    "peopleAnalyticsUseCases": [
+      "Gold layer refresh by 6am SLA monitoring.",
+      "Payroll data SLA: reconcile by 9am.",
+      "Recruiting pipeline SLA: updates daily.",
+      "Executive dashboard SLA: available by 7am."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "medallion-architecture",
+      "data-activator-reflex"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "sla",
+      "freshness",
+      "monitoring"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Pipeline Monitoring",
+        "url": "https://docs.microsoft.com/en-us/fabric/"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 weeks",
+    "costImplications": "Minimal overhead for monitoring"
+  },
+  {
+    "id": "escalation-routing",
+    "name": "Automated Escalation and Routing",
+    "domain": "Alerting, Automation, and Operational Intelligence",
+    "domainId": 7,
+    "category": "Automation",
+    "summary": "Smart routing of alerts to appropriate teams based on severity and data ownership (high turnover \u2192 dept head; data quality issue \u2192 data team).",
+    "description": "High turnover alert goes to HR head. Data quality issue goes to data team. Ownership-based routing ensures right person acts.",
+    "fabricComponents": [
+      "Alerting",
+      "Routing Engine",
+      "Power Automate"
+    ],
+    "pros": [
+      "Right person gets right alert.",
+      "Reduces response time.",
+      "Prevents alert fatigue."
+    ],
+    "cons": [
+      "Routing logic becomes complex.",
+      "Ownership must be maintained.",
+      "Depends on accurate severity classification."
+    ],
+    "usageInstructions": "1. Define alert types. 2. Map to owners. 3. Set routing rules. 4. Configure notifications. 5. Test. 6. Monitor effectiveness.",
+    "governanceConsiderations": "Ownership assignments maintained. Routing rules reviewed. Escalation paths clear. Response SLAs defined.",
+    "peopleAnalyticsUseCases": [
+      "High turnover \u2192 department head.",
+      "Data quality issue \u2192 data steward.",
+      "Salary anomaly \u2192 compensation manager.",
+      "Compliance issue \u2192 HR legal."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "data-activator-reflex",
+      "power-automate-triggers"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "escalation",
+      "routing",
+      "alerting"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Routing Logic",
+        "url": "https://docs.microsoft.com/en-us/power-automate/"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead"
+  },
+  {
+    "id": "cross-workspace-shortcuts",
+    "name": "Cross-Workspace Data Sharing via Shortcuts",
+    "domain": "Data Sharing and Distribution",
+    "domainId": 8,
+    "category": "Data Distribution",
+    "summary": "Shortcuts enable different workspaces (HR, Finance, Recruiting) to share data without copying, maintaining single source of truth.",
+    "description": "Finance workspace has authoritative employee master and cost centers. HR and Recruiting create shortcuts, always get latest data.",
+    "fabricComponents": [
+      "OneLake",
+      "Shortcuts",
+      "Workspaces"
+    ],
+    "pros": [
+      "Single source of truth.",
+      "Zero-copy sharing.",
+      "Automatic updates visible."
+    ],
+    "cons": [
+      "Cross-workspace latency.",
+      "Complex ownership management.",
+      "Lineage harder to track."
+    ],
+    "usageInstructions": "1. Source workspace has data. 2. Consumer workspace creates shortcut. 3. Reference shortcut like local table. 4. Monitor performance.",
+    "governanceConsiderations": "Source table ownership clear. Data contracts documented. Shortcut access controlled. Performance monitored.",
+    "peopleAnalyticsUseCases": [
+      "Finance employee master shared to HR via shortcuts.",
+      "Recruiting access cost center via Finance shortcut.",
+      "All teams access central org structure."
+    ],
+    "complexity": "Low",
+    "maturity": "GA",
+    "compatibleWith": [
+      "onelake-shortcuts",
+      "hub-spoke-workspace"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "shortcuts",
+      "cross-workspace",
+      "sharing"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Cross-Workspace Shortcuts",
+        "url": "https://docs.microsoft.com/en-us/fabric/onelake/onelake-shortcuts"
+      }
+    ],
+    "estimatedImplementationEffort": "1-2 days",
+    "costImplications": "Zero-copy saves significantly"
+  },
+  {
+    "id": "cross-tenant-sharing",
+    "name": "Cross-Tenant Data Sharing (B2B Scenarios)",
+    "domain": "Data Sharing and Distribution",
+    "domainId": 8,
+    "category": "Data Distribution",
+    "summary": "Sharing data across Azure AD tenants enabling partner organizations to access shared analytics while maintaining security.",
+    "description": "Parent company shares org structure and benchmark data with subsidiary. Subsidiary accesses via external shortcuts securely.",
+    "fabricComponents": [
+      "OneLake",
+      "Shortcuts",
+      "Tenants",
+      "Azure AD"
+    ],
+    "pros": [
+      "Enables partner collaboration.",
+      "Maintains security across tenants.",
+      "Zero-copy for cross-tenant data."
+    ],
+    "cons": [
+      "Complex permission management.",
+      "Cross-tenant latency.",
+      "Requires Azure AD trust."
+    ],
+    "usageInstructions": "1. Source tenant grants access. 2. Target tenant creates shortcut. 3. Authenticate across tenants. 4. Reference shortcut.",
+    "governanceConsiderations": "Explicit cross-tenant contracts. Legal agreements. Access regularly reviewed. Sensitive data restricted.",
+    "peopleAnalyticsUseCases": [
+      "Parent company shares benchmarks with subsidiary.",
+      "Shared services org shares data with business units.",
+      "JV shares hiring data with partners."
+    ],
+    "complexity": "High",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "onelake-shortcuts"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "cross-tenant",
+      "b2b",
+      "sharing"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Tenant Collaboration",
+        "url": "https://docs.microsoft.com/en-us/fabric/"
+      }
+    ],
+    "estimatedImplementationEffort": "4-6 weeks",
+    "costImplications": "Minimal overhead; security complexity"
+  },
+  {
+    "id": "semantic-model-certification-pipeline",
+    "name": "Semantic Model Certification Pipeline",
+    "domain": "Data Sharing and Distribution",
+    "domainId": 8,
+    "category": "BI Governance",
+    "summary": "Automated certification workflow where data teams publish semantic models and BI team verifies quality before marking Certified.",
+    "description": "Data team publishes employee dimension model. BI team runs tests, checks metadata, certifies if passed. Analysts use certified models.",
+    "fabricComponents": [
+      "Semantic Model",
+      "Power BI",
+      "CI/CD",
+      "Approval Workflow"
+    ],
+    "pros": [
+      "Ensures semantic model quality.",
+      "Reduces model duplication.",
+      "Governance automation."
+    ],
+    "cons": [
+      "Slows model time-to-value.",
+      "Certification bottleneck.",
+      "Requires clear criteria."
+    ],
+    "usageInstructions": "1. Data team publishes model. 2. Auto-run quality checks. 3. BI team reviews. 4. Approve/reject. 5. Publish as Certified. 6. Analysts use.",
+    "governanceConsiderations": "Certification criteria clear. Review time SLA defined. Criteria version controlled. Regular audit of certified models.",
+    "peopleAnalyticsUseCases": [
+      "Employee dimension certification before BI use.",
+      "Payroll semantic model certification.",
+      "Org structure model quality gates.",
+      "Metrics model certification."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "certified-semantic-model",
+      "deployment-pipelines"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "semantic-model",
+      "certification",
+      "governance"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Model Certification",
+        "url": "https://docs.microsoft.com/en-us/power-bi/collaborate-share/service-certify-datasets"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Minimal overhead; certification automation"
+  },
+  {
+    "id": "api-exposure-management",
+    "name": "REST API Exposure and Management",
+    "domain": "Data Sharing and Distribution",
+    "domainId": 8,
+    "category": "Data Distribution",
+    "summary": "Expose curated analytics data via REST APIs enabling external systems (HRIS, payroll, recruiting platforms) to consume Fabric data.",
+    "description": "REST API endpoints for employee master, org structure, payroll data. External HRIS calls API to fetch org updates. Managed API throttling.",
+    "fabricComponents": [
+      "Warehouse",
+      "SQL Endpoints",
+      "API Management",
+      "REST API"
+    ],
+    "pros": [
+      "Programmatic data access.",
+      "Enables external integrations.",
+      "API governance and throttling.",
+      "Reduces data replication."
+    ],
+    "cons": [
+      "API security overhead.",
+      "Performance tuning needed.",
+      "Version management complexity."
+    ],
+    "usageInstructions": "1. Create API Management instance. 2. Expose Warehouse via API. 3. Define endpoints. 4. Set throttling. 5. Manage keys. 6. Monitor usage.",
+    "governanceConsiderations": "API authentication required. Rate limiting enforced. Data access logged. Sensitive data restricted at API level.",
+    "peopleAnalyticsUseCases": [
+      "API for employee master to external HRIS.",
+      "Org structure API to recruiting platforms.",
+      "Payroll data API to finance systems.",
+      "Compensation band API to offer letter system."
+    ],
+    "complexity": "Medium",
+    "maturity": "GA",
+    "compatibleWith": [
+      "lakehouse-warehouse-selection",
+      "row-level-security"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "api",
+      "rest",
+      "data-distribution"
+    ],
+    "referenceLinks": [
+      {
+        "label": "API Management",
+        "url": "https://docs.microsoft.com/en-us/azure/api-management/"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "API Management licensing plus query compute"
+  },
+  {
+    "id": "dataset-subscription-alerting",
+    "name": "Dataset Subscription and Change Alerts",
+    "domain": "Data Sharing and Distribution",
+    "domainId": 8,
+    "category": "Data Distribution",
+    "summary": "Subscribers receive alerts when datasets change or refresh, enabling downstream systems to react to data updates.",
+    "description": "Recruiting platform subscribes to org structure changes. When org structure table updates, recruiting system receives alert, refetches data.",
+    "fabricComponents": [
+      "Event Grid",
+      "Webhooks",
+      "Lakehouse",
+      "Subscribers"
+    ],
+    "pros": [
+      "Push-based data distribution.",
+      "Subscribers notified of changes.",
+      "Reduces polling.",
+      "Real-time integration."
+    ],
+    "cons": [
+      "Webhook management overhead.",
+      "Failure handling complexity.",
+      "Debugging integration issues."
+    ],
+    "usageInstructions": "1. Configure Event Grid. 2. Define dataset change events. 3. Create webhooks for subscribers. 4. Subscribers listen. 5. Notify on change. 6. Handle failures.",
+    "governanceConsiderations": "Subscription management. Event audit trail. Webhook security. Retry policies defined.",
+    "peopleAnalyticsUseCases": [
+      "Org structure change alerts to recruiting system.",
+      "Employee master update alerts to payroll.",
+      "Compensation change alerts to benefits system.",
+      "Headcount change alerts to planning tools."
+    ],
+    "complexity": "Medium",
+    "maturity": "Preview",
+    "compatibleWith": [
+      "medallion-architecture",
+      "data-activator-reflex"
+    ],
+    "incompatibleWith": [],
+    "prerequisites": [],
+    "tags": [
+      "subscriptions",
+      "webhooks",
+      "event-driven"
+    ],
+    "referenceLinks": [
+      {
+        "label": "Event Grid",
+        "url": "https://docs.microsoft.com/en-us/azure/event-grid/overview"
+      }
+    ],
+    "estimatedImplementationEffort": "2-3 weeks",
+    "costImplications": "Event Grid pricing plus webhook compute"
+  }
+]
