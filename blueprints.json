@@ -1,0 +1,507 @@
+{
+  "blueprints": [
+    {
+      "id": "workforce-dashboard-foundation",
+      "name": "Workforce Analytics Dashboard (Foundation)",
+      "description": "Basic headcount, turnover, and diversity dashboard for HR leadership providing visibility into core workforce metrics with row-level security for sensitive reporting.",
+      "audience": "HR Leadership, CHRO, People Operations",
+      "patterns": [
+        "medallion-architecture",
+        "direct-lake-semantic-model",
+        "directlake-power-bi",
+        "row-level-security",
+        "sensitivity-labels",
+        "encryption-at-rest-cmk"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "direct-lake-semantic-model",
+          "description": "Gold-layer tables feed directly into DirectLake semantic model without data duplication"
+        },
+        {
+          "from": "direct-lake-semantic-model",
+          "to": "directlake-power-bi",
+          "description": "DirectLake semantic model powers interactive Power BI dashboards with instant query response"
+        },
+        {
+          "from": "directlake-power-bi",
+          "to": "row-level-security",
+          "description": "Power BI reports enforce row-level security to restrict data by HR role and business unit"
+        },
+        {
+          "from": "row-level-security",
+          "to": "sensitivity-labels",
+          "description": "RLS-protected fields labeled with sensitivity tags for audit compliance"
+        },
+        {
+          "from": "sensitivity-labels",
+          "to": "encryption-at-rest-cmk",
+          "description": "Sensitive headcount and compensation data encrypted with customer-managed keys"
+        }
+      ],
+      "editableNotes": "Customize this blueprint for your organization by selecting which workforce metrics (headcount by department, turnover trends, diversity breakdowns) are most relevant to your HR leadership KPIs. Adjust RLS roles based on your org hierarchy and reporting requirements.",
+      "estimatedTotalEffort": "3-4 weeks",
+      "keyGovernanceRequirements": [
+        "Define RLS roles matching HR organizational structure",
+        "Classify headcount and diversity data with sensitivity labels",
+        "Encrypt Lakehouse storage with customer-managed keys",
+        "Establish refresh SLA for daily HR metrics"
+      ],
+      "tags": [
+        "dashboarding",
+        "hr-leadership",
+        "foundational",
+        "security",
+        "directlake"
+      ]
+    },
+    {
+      "id": "attrition-risk-scoring",
+      "name": "Employee Attrition Risk Prediction Pipeline",
+      "description": "ML-based flight risk scoring with fairness controls and bias evaluation to identify at-risk employees while ensuring equitable predictions across demographic groups.",
+      "audience": "Data Scientists, HR Analytics, Talent Retention Teams",
+      "patterns": [
+        "medallion-architecture",
+        "spark-notebook-etl",
+        "feature-store-delta",
+        "batch-inference-pipeline",
+        "fairness-bias-evaluation",
+        "mlflow-model-registry",
+        "champion-challenger",
+        "data-activator-reflex"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "spark-notebook-etl",
+          "description": "Gold-layer employee and engagement data extracted for feature engineering"
+        },
+        {
+          "from": "spark-notebook-etl",
+          "to": "feature-store-delta",
+          "description": "Engineered features (tenure, promotion history, engagement scores) stored in versioned feature tables"
+        },
+        {
+          "from": "feature-store-delta",
+          "to": "batch-inference-pipeline",
+          "description": "Features fed into batch scoring pipeline that predicts attrition probability monthly"
+        },
+        {
+          "from": "batch-inference-pipeline",
+          "to": "fairness-bias-evaluation",
+          "description": "Predictions evaluated for bias across age, gender, and tenure groups"
+        },
+        {
+          "from": "fairness-bias-evaluation",
+          "to": "mlflow-model-registry",
+          "description": "Fair, bias-evaluated models registered with fairness metrics and thresholds"
+        },
+        {
+          "from": "mlflow-model-registry",
+          "to": "champion-challenger",
+          "description": "New models tested against champion production model before promotion"
+        },
+        {
+          "from": "champion-challenger",
+          "to": "data-activator-reflex",
+          "description": "High-risk employee scores trigger alerts to HR managers via Data Activator actions"
+        }
+      ],
+      "editableNotes": "Customize this blueprint by selecting features most predictive of attrition in your organization (e.g., manager stability, compensation benchmarking, internal promotion velocity). Define fairness thresholds and bias tolerance by demographic group based on HR policy.",
+      "estimatedTotalEffort": "8-12 weeks",
+      "keyGovernanceRequirements": [
+        "Track fairness metrics and bias evaluation results in MLflow",
+        "Document feature selection and model training datasets for auditability",
+        "Establish human review process for high-risk employee scores before HR action",
+        "Maintain model retraining schedule and performance monitoring dashboard"
+      ],
+      "tags": [
+        "ml-modeling",
+        "prediction",
+        "fairness",
+        "risk-scoring",
+        "mlops"
+      ]
+    },
+    {
+      "id": "compensation-analytics-secure",
+      "name": "Secure Compensation Analytics",
+      "description": "Salary and bonus analytics with dynamic masking, DLP policy enforcement, and executive-level data isolation to enable compensation analytics while protecting sensitive payroll information.",
+      "audience": "Compensation & Benefits Teams, Finance, Executive Leadership",
+      "patterns": [
+        "medallion-architecture",
+        "scd-type-2",
+        "dynamic-data-masking",
+        "row-level-security",
+        "dlp-policy-enforcement",
+        "anonymization-k-anonymity",
+        "certified-semantic-model",
+        "paginated-reports"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "scd-type-2",
+          "description": "Gold-layer compensation data maintains history using Slowly Changing Dimension Type 2 for salary changes"
+        },
+        {
+          "from": "scd-type-2",
+          "to": "dynamic-data-masking",
+          "description": "Compensation amounts masked based on user role (HR sees actuals, managers see bands, employees see anonymized)"
+        },
+        {
+          "from": "dynamic-data-masking",
+          "to": "row-level-security",
+          "description": "RLS ensures compensation data visible only to appropriate stakeholders (compensation team, relevant managers)"
+        },
+        {
+          "from": "row-level-security",
+          "to": "dlp-policy-enforcement",
+          "description": "DLP policies prevent export or copying of compensation data to unsecured locations"
+        },
+        {
+          "from": "dlp-policy-enforcement",
+          "to": "anonymization-k-anonymity",
+          "description": "Aggregate compensation analytics anonymized with k-anonymity to prevent individual identification"
+        },
+        {
+          "from": "anonymization-k-anonymity",
+          "to": "certified-semantic-model",
+          "description": "Anonymized, aggregated compensation metrics certified for self-service use by HR analysts"
+        },
+        {
+          "from": "certified-semantic-model",
+          "to": "paginated-reports",
+          "description": "Paginated executive compensation reports with audit trails and DLP watermarks"
+        }
+      ],
+      "editableNotes": "Customize masking rules to match your organization's compensation governance (e.g., what executive levels see individual vs. aggregate data). Define RLS groups for compensation team, business unit managers, and executives. Adjust k-anonymity thresholds based on your workforce size.",
+      "estimatedTotalEffort": "6-8 weeks",
+      "keyGovernanceRequirements": [
+        "Define dynamic masking rules for each user role (HR specialist, manager, employee, executive)",
+        "Establish DLP policies preventing compensation data export and enforcing watermarking",
+        "Document SCD Type 2 salary history changes with effective dates for audit compliance",
+        "Monitor and audit compensation data access through sensitivity labels and SIEM integration"
+      ],
+      "tags": [
+        "compensation",
+        "security",
+        "masking",
+        "dlp",
+        "privacy-preserving"
+      ]
+    },
+    {
+      "id": "regulatory-compliance-stack",
+      "name": "Regulatory Compliance & Audit Stack",
+      "description": "Full governance stack for OSFI and Federal Reserve regulated environments with encryption, sensitivity classification, audit trails, and privileged access management.",
+      "audience": "Compliance Officers, Internal Audit, Security Teams, Risk Management",
+      "patterns": [
+        "encryption-at-rest-cmk",
+        "sensitivity-labels",
+        "purview-data-map",
+        "dlp-policy-enforcement",
+        "audit-siem-integration",
+        "workspace-permission-governance",
+        "privileged-access-management",
+        "network-isolation-private-links"
+      ],
+      "patternFlow": [
+        {
+          "from": "encryption-at-rest-cmk",
+          "to": "sensitivity-labels",
+          "description": "All HR data encrypted with customer-managed keys, then classified by sensitivity level (regulatory, confidential, internal)"
+        },
+        {
+          "from": "sensitivity-labels",
+          "to": "purview-data-map",
+          "description": "Sensitivity labels propagated through Purview to create data lineage map with classification metadata"
+        },
+        {
+          "from": "purview-data-map",
+          "to": "dlp-policy-enforcement",
+          "description": "Purview metadata triggers DLP policies restricting access and export of highly sensitive HR data"
+        },
+        {
+          "from": "dlp-policy-enforcement",
+          "to": "audit-siem-integration",
+          "description": "DLP policy violations and access attempts logged to SIEM for regulatory audit and forensics"
+        },
+        {
+          "from": "audit-siem-integration",
+          "to": "workspace-permission-governance",
+          "description": "SIEM audit data correlates with workspace-level permission changes for access governance audit trail"
+        },
+        {
+          "from": "workspace-permission-governance",
+          "to": "privileged-access-management",
+          "description": "Workspace admin and sensitive data access controlled through PAM with time-bound approval workflows"
+        },
+        {
+          "from": "privileged-access-management",
+          "to": "network-isolation-private-links",
+          "description": "PAM-approved access routes through private endpoints to prevent internet exposure of regulatory data"
+        }
+      ],
+      "editableNotes": "Customize this stack for your specific regulatory environment (OSFI, Federal Reserve, GDPR, PIPEDA). Define sensitivity labels matching regulatory classifications (e.g., 'OSFI Confidential', 'Trade Secret'). Configure PAM approval workflows for compliance officer reviews.",
+      "estimatedTotalEffort": "12-16 weeks",
+      "keyGovernanceRequirements": [
+        "Implement CMK encryption with regulated key escrow and audit logging",
+        "Establish sensitivity classification scheme aligned with regulatory requirements",
+        "Deploy SIEM integration with 90-day+ audit log retention for regulatory inspections",
+        "Implement PAM with separation of duties: requestor, approver, and executor roles"
+      ],
+      "tags": [
+        "compliance",
+        "regulatory",
+        "security",
+        "audit",
+        "governance"
+      ]
+    },
+    {
+      "id": "hr-chatbot-secure",
+      "name": "Secure HR Policy Chatbot (GenAI)",
+      "description": "RAG-based conversational AI agent grounded in HR policies and employee data with row-level security enforcement and audit logging for secure policy Q&A.",
+      "audience": "HR Service Centers, Employees, Managers",
+      "patterns": [
+        "medallion-architecture",
+        "rag-fabric-grounded",
+        "secure-chat-rls",
+        "copilot-studio-grounded",
+        "hr-ai-guardrails",
+        "audit-siem-integration"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "rag-fabric-grounded",
+          "description": "Gold-layer HR policies, benefits documentation, and employee data indexed as vectors for RAG retrieval"
+        },
+        {
+          "from": "rag-fabric-grounded",
+          "to": "secure-chat-rls",
+          "description": "RAG retriever applies row-level security to ensure employees only see personally relevant information (their benefits, vacation balance)"
+        },
+        {
+          "from": "secure-chat-rls",
+          "to": "copilot-studio-grounded",
+          "description": "Secure RAG context fed into Copilot Studio for natural conversational interface with guardrails"
+        },
+        {
+          "from": "copilot-studio-grounded",
+          "to": "hr-ai-guardrails",
+          "description": "Copilot response generation constrained with HR-specific guardrails to prevent hallucinations and inappropriate answers"
+        },
+        {
+          "from": "hr-ai-guardrails",
+          "to": "audit-siem-integration",
+          "description": "All chat interactions and guardrail violations logged to SIEM for compliance auditing"
+        }
+      ],
+      "editableNotes": "Customize the chatbot for your HR context by selecting which policies, benefits information, and employee data to ground the RAG retriever in. Define guardrails to prevent the chatbot from answering sensitive questions (e.g., compensation, performance reviews). Configure escalation flows for complex questions.",
+      "estimatedTotalEffort": "6-8 weeks",
+      "keyGovernanceRequirements": [
+        "Define RLS rules for chatbot to protect employee personal data (salary, SSN, medical info)",
+        "Document guardrails and test for prompt injection/jailbreak attempts before production",
+        "Enable audit logging of all chatbot interactions including question, response, and RLS context applied",
+        "Establish escalation workflow for guardrail violations and questions requiring human HR review"
+      ],
+      "tags": [
+        "generative-ai",
+        "chatbot",
+        "rag",
+        "security",
+        "guardrails"
+      ]
+    },
+    {
+      "id": "onboarding-offboarding-pipeline",
+      "name": "Employee Lifecycle Data Pipeline",
+      "description": "Full hire-to-retire data pipeline capturing employee lifecycle events with change data capture, consent management, data retention, and support for data subject requests.",
+      "audience": "HR Operations, Data Governance, Privacy Officers",
+      "patterns": [
+        "medallion-architecture",
+        "cdc-change-capture",
+        "scd-type-2",
+        "data-quality-validation",
+        "data-retention-lifecycle",
+        "dsr-fulfillment",
+        "sensitivity-labels"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "cdc-change-capture",
+          "description": "Bronze layer captures all employee lifecycle events (hire, promotion, termination) via change data capture"
+        },
+        {
+          "from": "cdc-change-capture",
+          "to": "scd-type-2",
+          "description": "CDC events processed into Slowly Changing Dimension Type 2 to maintain full employment history with effective dates"
+        },
+        {
+          "from": "scd-type-2",
+          "to": "data-quality-validation",
+          "description": "SCD records validated for completeness (all required lifecycle fields present, dates consistent)"
+        },
+        {
+          "from": "data-quality-validation",
+          "to": "data-retention-lifecycle",
+          "description": "Valid lifecycle records assigned retention policies based on employee status and contract terms"
+        },
+        {
+          "from": "data-retention-lifecycle",
+          "to": "dsr-fulfillment",
+          "description": "Retention lifecycle enables data subject request fulfillment by identifying and anonymizing/deleting records per policy"
+        },
+        {
+          "from": "dsr-fulfillment",
+          "to": "sensitivity-labels",
+          "description": "Lifecycle records labeled with consent status and retention period for auditing DSR compliance"
+        }
+      ],
+      "editableNotes": "Customize retention policies for your organization's legal and business requirements (e.g., PIPEDA requires 1-year post-termination retention for severance audits). Define data quality checks matching your HRIS systems (Workday, SuccessFactors). Configure DSR templates for employee data portability requests.",
+      "estimatedTotalEffort": "8-10 weeks",
+      "keyGovernanceRequirements": [
+        "Document retention policy for each employee lifecycle stage and jurisdiction (Canada, US, EU)",
+        "Implement data quality validation rules with alerting for missing hire dates, employment terminations",
+        "Create DSR fulfillment workflow with legal review before deletion of historical employment data",
+        "Maintain audit log of retention policy enforcement and DSR requests with approval chains"
+      ],
+      "tags": [
+        "lifecycle",
+        "privacy",
+        "dsr",
+        "retention",
+        "compliance"
+      ]
+    },
+    {
+      "id": "cross-border-hr-analytics",
+      "name": "Multi-Country HR Analytics (Data Residency)",
+      "description": "Separate Canadian and US employee data with aggregate-only cross-border reporting to comply with data residency requirements while enabling global insights.",
+      "audience": "Global HR Leadership, Compliance, Data Governance",
+      "patterns": [
+        "cross-border-data-residency",
+        "medallion-architecture",
+        "encryption-at-rest-cmk",
+        "row-level-security",
+        "anonymization-k-anonymity",
+        "hub-spoke-workspace"
+      ],
+      "patternFlow": [
+        {
+          "from": "cross-border-data-residency",
+          "to": "medallion-architecture",
+          "description": "Data residency rules define separate Bronze/Silver/Gold medallion stacks per country (Canada East, US East)"
+        },
+        {
+          "from": "medallion-architecture",
+          "to": "encryption-at-rest-cmk",
+          "description": "Each country's medallion stack encrypted with region-specific customer-managed keys (Canada uses Canadian key vault)"
+        },
+        {
+          "from": "encryption-at-rest-cmk",
+          "to": "row-level-security",
+          "description": "RLS prevents Canadian users from accessing US employee data and vice versa at semantic model layer"
+        },
+        {
+          "from": "row-level-security",
+          "to": "anonymization-k-anonymity",
+          "description": "Cross-border aggregate reporting anonymizes individual employee records with k-anonymity before combining countries"
+        },
+        {
+          "from": "anonymization-k-anonymity",
+          "to": "hub-spoke-workspace",
+          "description": "Hub workspace in neutral region aggregates anonymized global metrics; spoke workspaces maintain country-specific detailed data"
+        }
+      ],
+      "editableNotes": "Customize data residency rules for your organization's footprint (Canada, US, EU, Asia). Define k-anonymity thresholds per country based on workforce size (e.g., k=5 minimum for any demographic slice). Configure hub-spoke topology matching your governance structure.",
+      "estimatedTotalEffort": "10-14 weeks",
+      "keyGovernanceRequirements": [
+        "Document data flows and residency requirements for each country with legal review",
+        "Implement separate encryption keys per country with key rotation per local compliance requirements",
+        "Define anonymization thresholds (k-anonymity) for cross-border reporting based on country privacy laws",
+        "Establish hub-spoke workspace access controls with country-level RLS at semantic model layer"
+      ],
+      "tags": [
+        "data-residency",
+        "privacy",
+        "cross-border",
+        "global",
+        "compliance"
+      ]
+    },
+    {
+      "id": "self-service-bi-governed",
+      "name": "Governed Self-Service BI Platform",
+      "description": "Enable HR analysts to build reports on certified data without creating shadow analytics by providing governed self-service with certified models, deployment pipelines, and metrics scorecards.",
+      "audience": "HR Analytics Teams, Business Analysts, HR Leadership",
+      "patterns": [
+        "medallion-architecture",
+        "certified-semantic-model",
+        "hub-spoke-workspace",
+        "deployment-pipelines",
+        "sensitivity-labels",
+        "workspace-permission-governance",
+        "metrics-scorecard"
+      ],
+      "patternFlow": [
+        {
+          "from": "medallion-architecture",
+          "to": "certified-semantic-model",
+          "description": "Gold-layer HR metrics tables certified by data governance team for safe self-service analysis"
+        },
+        {
+          "from": "certified-semantic-model",
+          "to": "hub-spoke-workspace",
+          "description": "Certified model deployed to hub workspace as shared analytics foundation; spokes enable team-specific reports"
+        },
+        {
+          "from": "hub-spoke-workspace",
+          "to": "deployment-pipelines",
+          "description": "Hub model promoted to production via automated deployment pipeline with testing, version control, and rollback"
+        },
+        {
+          "from": "deployment-pipelines",
+          "to": "sensitivity-labels",
+          "description": "Deployed models inherit sensitivity labels from source data to enforce security in self-service reports"
+        },
+        {
+          "from": "sensitivity-labels",
+          "to": "workspace-permission-governance",
+          "description": "Workspace permissions aligned with sensitivity labels: internal data visible to HR, confidential data to leadership only"
+        },
+        {
+          "from": "workspace-permission-governance",
+          "to": "metrics-scorecard",
+          "description": "Metrics scorecards built on certified model in governed workspace, providing single source of truth for HR KPIs"
+        }
+      ],
+      "editableNotes": "Customize certified metrics to match your organization's core HR KPIs (headcount, turnover, promotion velocity, diversity). Define governance approval workflow for new metrics (data owner approval, security review). Configure deployment pipeline with testing thresholds for metric validation.",
+      "estimatedTotalEffort": "7-9 weeks",
+      "keyGovernanceRequirements": [
+        "Establish semantic model certification process with data owner sign-off before self-service use",
+        "Define deployment pipeline with automated testing, peer review, and change log for all model updates",
+        "Configure workspace permissions and sensitivity labels matching organizational security policies",
+        "Create metrics scorecard governance to prevent metric proliferation and ensure consistency across org"
+      ],
+      "tags": [
+        "self-service-bi",
+        "governance",
+        "democratization",
+        "metrics",
+        "analytics-platform"
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2026-02-25",
+    "totalBlueprints": 8,
+    "audience": "HR Analytics teams at financial services organizations",
+    "description": "Pre-built use case blueprints showing recommended pattern stacks for common HR analytics scenarios"
+  }
+}
