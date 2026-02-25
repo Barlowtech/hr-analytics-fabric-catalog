@@ -11,7 +11,7 @@ transformation, governance, business intelligence, machine learning, and more—
 Whether you're building your first HR analytics solution or modernizing an existing one, this catalog provides:
 
 - **8 Domain Areas:** Comprehensive coverage from data organization through data sharing
-- **49 Patterns:** Tested approaches with complexity assessments, governance considerations, and use cases
+- **73 Patterns:** Tested approaches with complexity assessments, governance considerations, and use cases
 - **Implementation Guidance:** Practical instructions, code examples, and best practices
 - **Governance Focus:** Special attention to the unique security and compliance requirements of HR data
 
@@ -91,6 +91,30 @@ The Streamlit app provides:
 | Semantic Model Certification Pipeline | Data Sharing and Distribution | Medium | GA |
 | REST API Exposure and Management | Data Sharing and Distribution | Medium | GA |
 | Dataset Subscription and Change Alerts | Data Sharing and Distribution | Medium | Preview |
+| Encryption at Rest with Customer-Managed Keys | Data Governance and Security | Medium | GA |
+| Data Loss Prevention Policy Enforcement | Data Governance and Security | Medium | GA |
+| PII Tokenization and Pseudonymization | Data Transformation and Processing | High | Emerging |
+| Automated Data Retention and Purge Pipeline | Data Transformation and Processing | High | Emerging |
+| Statistical Anonymization for HR Analytics | Data Governance and Security | High | Emerging |
+| Audit Log Export and SIEM Integration | Data Governance and Security | Medium | GA |
+| Data Subject Request Fulfillment Pipeline | Data Governance and Security | High | Emerging |
+| Disaster Recovery and Geo-Redundancy | Data Sharing and Distribution | Medium | GA |
+| Network Isolation with Private Endpoints | Data Governance and Security | High | GA |
+| Just-in-Time Privileged Access Management | Data Governance and Security | Medium | GA |
+| Dual-Approval Change Management Pipeline | Data Transformation and Processing | Medium | Emerging |
+| Cross-Border Data Residency Isolation | Data Sharing and Distribution | High | GA |
+| Encryption at Rest with Customer-Managed Keys | Data Governance and Security | Medium | GA |
+| Data Loss Prevention Policy Enforcement | Data Governance and Security | Medium | GA |
+| PII Tokenization and Pseudonymization | Data Transformation and Processing | High | Emerging |
+| Automated Data Retention and Purge Pipeline | Data Transformation and Processing | High | Emerging |
+| Statistical Anonymization for HR Analytics | Data Governance and Security | High | Emerging |
+| Audit Log Export and SIEM Integration | Data Governance and Security | Medium | GA |
+| Data Subject Request Fulfillment Pipeline | Data Governance and Security | High | Emerging |
+| Disaster Recovery and Geo-Redundancy | Data Sharing and Distribution | Medium | GA |
+| Network Isolation with Private Endpoints | Data Governance and Security | High | GA |
+| Just-in-Time Privileged Access Management | Data Governance and Security | Medium | GA |
+| Dual-Approval Change Management Pipeline | Data Transformation and Processing | Medium | Emerging |
+| Cross-Border Data Residency Isolation | Data Sharing and Distribution | High | GA |
 
 ## Repository Structure
 
@@ -179,6 +203,6 @@ This project is licensed under the MIT License. See LICENSE file for details.
 
 ---
 
-**Last Updated:** 2026-02-25 07:39:25
+**Last Updated:** 2026-02-25 10:14:12
 
 For questions, feedback, or contributions, please open an issue or submit a pull request.

@@ -43,7 +43,7 @@ This is a reference document for understanding the breadth of the catalog and qu
 
 ## Transformation and Processing (Domain 2)
 
-**Total Patterns:** 7
+**Total Patterns:** 13
 
 ### Spark Notebook ETL Pipelines
 - **Complexity:** High
@@ -80,11 +80,41 @@ This is a reference document for understanding the breadth of the catalog and qu
 - **Maturity:** GA
 - **Summary:** Automated checks after ETL for anomalies, nulls, schema violations, business rule violations preventing bad data propagation.
 
+### PII Tokenization and Pseudonymization
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Replaces Personally Identifiable Information (PII) with deterministic tokens using Microsoft Presidio and PySpark, enabling data sharing and analytics without exposing actual personal data.
+
+### Automated Data Retention and Purge Pipeline
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Implements scheduled automated pipelines that evaluate data age against retention rules, execute secure deletion with audit trails, and support legal hold overrides for compliance.
+
+### Dual-Approval Change Management Pipeline
+- **Complexity:** Medium
+- **Maturity:** Emerging
+- **Summary:** Enforces dual-approval (business and governance) before production pipeline deployment, implementing four-eyes principle via Azure DevOps gates.
+
+### PII Tokenization and Pseudonymization
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Replaces Personally Identifiable Information (PII) with deterministic tokens using Microsoft Presidio and PySpark, enabling data sharing and analytics without exposing actual personal data.
+
+### Automated Data Retention and Purge Pipeline
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Implements scheduled automated pipelines that evaluate data age against retention rules, execute secure deletion with audit trails, and support legal hold overrides for compliance.
+
+### Dual-Approval Change Management Pipeline
+- **Complexity:** Medium
+- **Maturity:** Emerging
+- **Summary:** Enforces dual-approval (business and governance) before production pipeline deployment, implementing four-eyes principle via Azure DevOps gates.
+
 ---
 
 ## Governance and Security (Domain 3)
 
-**Total Patterns:** 6
+**Total Patterns:** 20
 
 ### Microsoft Purview Data Map
 - **Complexity:** Medium
@@ -115,6 +145,76 @@ This is a reference document for understanding the breadth of the catalog and qu
 - **Complexity:** Low
 - **Maturity:** GA
 - **Summary:** Manages workspace role assignments (Admin, Member, Contributor, Viewer) through approval workflows preventing unauthorized access creep.
+
+### Encryption at Rest with Customer-Managed Keys
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Implements encryption at rest using customer-managed keys (CMK) stored in Azure Key Vault for OneLake workspace data. Ensures TLS 1.2+ for all data in transit and maintains FIPS 140-2 compliance for sensitive HR data.
+
+### Data Loss Prevention Policy Enforcement
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Configures Microsoft Purview Data Loss Prevention (DLP) policies to detect and block unauthorized export or sharing of sensitive information types including SSN, salary data, and bank account numbers.
+
+### Statistical Anonymization for HR Analytics
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Implements k-anonymity and differential privacy techniques to ensure published HR analytics cannot identify individuals through aggregation attacks or frequency analysis.
+
+### Audit Log Export and SIEM Integration
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Forwards Fabric activity logs and Power BI audit logs to Azure Sentinel for centralized SOC monitoring, anomaly detection, and forensic investigation.
+
+### Data Subject Request Fulfillment Pipeline
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Automates GDPR/PIPEDA data subject rights (access and erasure) with workflows using Purview data lineage, soft-delete mechanisms, and verification processes.
+
+### Network Isolation with Private Endpoints
+- **Complexity:** High
+- **Maturity:** GA
+- **Summary:** Implements Azure Private Endpoints for Fabric Capacity and managed private endpoints for Spark/compute, ensuring traffic flows only over private VNet and preventing internet exposure.
+
+### Just-in-Time Privileged Access Management
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Implements Azure Entra ID Privileged Identity Management (PIM) for just-in-time elevation of workspace admin roles, with approval workflows and MFA enforcement.
+
+### Encryption at Rest with Customer-Managed Keys
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Implements encryption at rest using customer-managed keys (CMK) stored in Azure Key Vault for OneLake workspace data. Ensures TLS 1.2+ for all data in transit and maintains FIPS 140-2 compliance for sensitive HR data.
+
+### Data Loss Prevention Policy Enforcement
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Configures Microsoft Purview Data Loss Prevention (DLP) policies to detect and block unauthorized export or sharing of sensitive information types including SSN, salary data, and bank account numbers.
+
+### Statistical Anonymization for HR Analytics
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Implements k-anonymity and differential privacy techniques to ensure published HR analytics cannot identify individuals through aggregation attacks or frequency analysis.
+
+### Audit Log Export and SIEM Integration
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Forwards Fabric activity logs and Power BI audit logs to Azure Sentinel for centralized SOC monitoring, anomaly detection, and forensic investigation.
+
+### Data Subject Request Fulfillment Pipeline
+- **Complexity:** High
+- **Maturity:** Emerging
+- **Summary:** Automates GDPR/PIPEDA data subject rights (access and erasure) with workflows using Purview data lineage, soft-delete mechanisms, and verification processes.
+
+### Network Isolation with Private Endpoints
+- **Complexity:** High
+- **Maturity:** GA
+- **Summary:** Implements Azure Private Endpoints for Fabric Capacity and managed private endpoints for Spark/compute, ensuring traffic flows only over private VNet and preventing internet exposure.
+
+### Just-in-Time Privileged Access Management
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Implements Azure Entra ID Privileged Identity Management (PIM) for just-in-time elevation of workspace admin roles, with approval workflows and MFA enforcement.
 
 ---
 
@@ -269,7 +369,7 @@ This is a reference document for understanding the breadth of the catalog and qu
 
 ## Data Sharing and Collaboration (Domain 8)
 
-**Total Patterns:** 5
+**Total Patterns:** 9
 
 ### Cross-Workspace Data Sharing via Shortcuts
 - **Complexity:** Low
@@ -295,6 +395,26 @@ This is a reference document for understanding the breadth of the catalog and qu
 - **Complexity:** Medium
 - **Maturity:** Preview
 - **Summary:** Subscribers receive alerts when datasets change or refresh, enabling downstream systems to react to data updates.
+
+### Disaster Recovery and Geo-Redundancy
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Configures OneLake with zone-redundant storage (ZRS) and geo-replication to paired Azure region, with manual failover procedures and multi-geo capacity for data residency.
+
+### Cross-Border Data Residency Isolation
+- **Complexity:** High
+- **Maturity:** GA
+- **Summary:** Isolates employee data by geography using multi-geo Fabric capacities, ensuring Canadian employee data remains in Canada and US data in US, with aggregate-only cross-border reporting.
+
+### Disaster Recovery and Geo-Redundancy
+- **Complexity:** Medium
+- **Maturity:** GA
+- **Summary:** Configures OneLake with zone-redundant storage (ZRS) and geo-replication to paired Azure region, with manual failover procedures and multi-geo capacity for data residency.
+
+### Cross-Border Data Residency Isolation
+- **Complexity:** High
+- **Maturity:** GA
+- **Summary:** Isolates employee data by geography using multi-geo Fabric capacities, ensuring Canadian employee data remains in Canada and US data in US, with aggregate-only cross-border reporting.
 
 ---
 
